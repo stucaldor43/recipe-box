@@ -27,7 +27,10 @@ window.addEventListener("load", function() {
           });
         },
         openModal() {
-          this.setState({modalActive: !this.state.modalActive});
+          this.setState({modalActive: true});
+        },
+        closeModal() {
+          this.setState({modalActive: false});
         },
         render() {
           let modalClassname = (this.state.modalActive) ? "show" : "hidden";
@@ -38,7 +41,7 @@ window.addEventListener("load", function() {
                 <RecipeList renderingComponent={this} recipes={this.state.recipes} />
                 <button onClick={this.openModal} className="btn btn-primary">Create Recipe</button>
               </div>
-              <RecipeCreatorModal renderingComponent={this} cName={modalClassname} />
+              {this.state.modalActive ? <RecipeCreatorModal renderingComponent={this} cName={modalClassname} closeModal={this.closeModal.bind(this)}/> : null}
             </section>
             );
         }
@@ -46,39 +49,72 @@ window.addEventListener("load", function() {
     
     const RecipeCreatorModal = React.createClass({
         getInitialState() {
-          return {};
+          return {ingredientCount: 1, indicesOfDeletedIngredients: []};
+        },
+        componentWillMount() {
+          this.ingredientNodes = [];
+          this.indicesOfDeletedIngredients = [];
+        },
+        addIngredientSlot() {
+          this.setState({
+            ingredientCount: this.state.ingredientCount + 1
+          });
+        },
+        removeIngredient(index) {
+          this.state.indicesOfDeletedIngredients.push(index);
+          this.setState({
+            indicesOfDeletedIngredients: this.state.indicesOfDeletedIngredients
+          });
         },
         saveRecipe() {
-          let ingredients = this.textarea.value.split(",")
-            .map((item) => item.trim());
+          const ingredients = this.ingredientNodes.reduce((ingredients, el) => {
+            (el) ? ingredients.push(el.value.trim()) : null;
+            return ingredients;
+          }, []);
           this.props.renderingComponent
             .addRecipe(this.recipeInput.value, ingredients);
-          
+          this.closeModal();
+        },
+        closeModal() {
+          this.props.closeModal();
+        },
+        renderIngredients() {
+          const ingredients = [];
+          for (let i = 0; i < this.state.ingredientCount; i++) {
+            if (this.state.indicesOfDeletedIngredients.indexOf(i) <= -1) {
+              ingredients.push(
+                <li>
+                  <label>Ingredient<input type="text" ref={(c) => this.ingredientNodes.push(c)} className="modal-ingredientInput"/></label>
+                  <button onClick={this.removeIngredient.bind(this, i)}><i className="glyphicon glyphicon-trash"></i></button>
+                </li>
+              );
+            }
+          }
+          return ingredients;
         },
         render() {
-          const textareaDefaultValue = "Enter ingredients here(space" + 
-          " delimited by a comma except for the last ingredient)" + 
-          "\n ex: onions, lettuce, tomatoes"; 
-          
           return (
-            <div className={this.props.cName}>
-              <ul>
-                <li>
-                  <label htmlFor="recipeTitle">Title<input type="text" 
-                    ref={(c) => this.recipeInput = c} name="recipeTitle"/></label>
-                </li>
-                <li>
-                  <textarea defaultValue={textareaDefaultValue} 
-                    ref={(c) => this.textarea = c}>
-                    
-                  </textarea>
-                </li>
-                <li>
-                  <button onClick={this.saveRecipe} className="btn btn-success">Save Recipe</button>
-                </li>
-              </ul>
+            <div className={`${this.props.cName} modal`}>
+              <div className="modal-header">
+                <button className="modal-closeButton btn btn-default" onClick={this.closeModal}><i className="glyphicon glyphicon-remove"></i></button>
+              </div>
+              <div className="modal-content">
+                <ul>
+                  <li className="modal-titleInputContainer">
+                    <label htmlFor="recipeTitle">Title<input type="text" 
+                    ref={(c) => this.recipeInput = c} name="recipeTitle" className="modal-titleInput"/></label>
+                  </li>
+                  {this.renderIngredients()}
+                  <li className="modal-addIngredientButtonContainer">
+                    <button onClick={this.addIngredientSlot} className="modal-addIngredientButton btn btn-default"><i className="glyphicon glyphicon-plus"></i>Add ingredient</button>
+                  </li>
+                </ul>
+              </div>
+              <div className="modal-footer">
+                <button onClick={this.saveRecipe} className="btn btn-success btn-default modal-saveRecipeButton">Save Recipe</button>
+              </div>
             </div>
-            );
+          );
         }
     });
     
@@ -131,18 +167,6 @@ window.addEventListener("load", function() {
         );
       }
     });
-    
-    /* 
-    <div className={this.props.cName}>
-             <label htmlFor="title">Title<input type="text" 
-             onChange={this.updateField} name="title" value={this.props.title} /></label><br/>
-             <label htmlFor="">Ingredients<textarea 
-             value="fd"></textarea></label>
-             <br/>
-             <button className="btn btn-primary">Save Changes</button>
-             <button className="btn btn-danger">Discard Changes</button>
-           </div>
-    */
     
     const RecipeList = React.createClass({
        getInitialState() {
