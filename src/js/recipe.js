@@ -1,5 +1,5 @@
 window.addEventListener("load", function() {
-    const ListContainer = React.createClass({
+    const App = React.createClass({
         getInitialState() {
           return {modalActive: false, recipes: []};
         },
@@ -187,29 +187,6 @@ window.addEventListener("load", function() {
             );   
        }
     });
-    
-    const RecipeItem = React.createClass({
-      getInitialState() {
-        return {};   
-      },
-      render() {
-        const ingredientList = this.props.ingredients.map(
-          (item) => <li>{ item }</li>);   
-        return(
-            <article>
-                <h2>
-                  { this.props.name }
-                </h2>
-                <ul>
-                  { ingredientList }
-                </ul>
-            </article>
-            );    
-        
-        
-      }
-    });
-    
-    ReactDOM.render(<ListContainer />, document.querySelector("body"));
+    ReactDOM.render(<App />, document.querySelector("body"));
 });
 
