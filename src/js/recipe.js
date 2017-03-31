@@ -254,56 +254,6 @@ window.addEventListener("load", function() {
         }  
     });
     
-    var RecipeEditorModal = React.createClass({
-       getInitialState() {
-         return {};
-       },
-       erase(field, e) {
-        if (e.keyCode === 8) {
-          let recipes = this.props.renderingComponentsParent.state.recipes;
-          let recipe = recipes.filter((el) => el === this.props.editableRecipe);
-          recipe[0][field] = recipe[0][field].slice(0, recipe[0][field].length - 1); 
-          this.props.renderingComponentsParent.setState({recipes: recipes});
-        }
-       },
-       updateInput(e) {
-        let recipes = this.props.renderingComponentsParent.state.recipes;
-        let recipe = recipes.filter((el) => el === this.props.editableRecipe);
-        recipe[0].title += e.key; 
-        this.props.renderingComponentsParent.setState({recipes: recipes});
-       },
-       updateTextArea(e) {
-        const currentRecipe = this.props.renderingComponentsParent.state.recipes.filter((el) => el === this.props.editableRecipe );
-        let recipes = this.props.renderingComponentsParent.state.recipes;
-        let recipe = recipes.filter((el) => el === this.props.editableRecipe);
-        recipe[0].ingredients += e.key; 
-        this.props.renderingComponentsParent.setState({recipes: recipes});
-        
-        
-       },
-       render() {
-         
-         return (
-          <div>
-          <RecipeEditorDisplay parent={this} title={this.props.title} ingredients={this.props.ingredients}
-          cName={this.props.cName} />
-          </div>
-         );
-       }
-    });
-    
-    var RecipeEditorDisplay = React.createClass({
-      render() {
-        return (
-          <div className={this.props.cName}>
-             <input onKeyDown={this.props.parent.erase.bind(this, "title")} onKeyPress={this.props.parent.updateInput} type="text" value={this.props.title}  /><br/>
-             <textarea onKeyDown={this.props.parent.erase.bind(this, "ingredients")} onKeyPress={this.props.parent.updateTextArea} value={this.props.ingredients} style={{height: "200px"}}></textarea>
-             <br/>
-          </div>
-        );
-      }
-    });
-    
     const RecipeList = React.createClass({
        getInitialState() {
         return {editing: false, currentlyEditedRecipeIndex: undefined, isRecipeViewerOpen: false};   
@@ -340,33 +290,11 @@ window.addEventListener("load", function() {
         });
        },
        render() {
-        const recipeTitleList = this.props.recipes
-          .map((recipe, i) => (
-            <li>
-              { recipe.title }
-              <button onClick={this.viewRecipe.bind(this, i)} className="btn btn-primary">View</button>
-              <button className="btn btn-danger"
-                onClick={this.deleteRecipe.bind(this, i)}>Delete</button>
-            </li>));
-        let editorModalClass = (this.state.editing) ? "show" : "hidden";
-        let editableRecipe = (this.state.currentlyEditedRecipeIndex >= 0) ? this.props.renderingComponent.state
-          .recipes[this.state.currentlyEditedRecipeIndex] : null;
-        let recipeTitle = (editableRecipe) ? editableRecipe.title : "";
-        let recipeIngredients = (editableRecipe) ? editableRecipe.ingredients : ""; 
-        // return (
-        //     <ul>
-        //       { recipeTitleList }
-        //       <li>
-        //         <RecipeEditorModal editableRecipe={editableRecipe} cName={editorModalClass} 
-        //           renderingComponentsParent={this.props.renderingComponent} 
-        //           title={recipeTitle} ingredients={recipeIngredients}/>
-        //       </li>
-        //     </ul>
-        //     );
         const {currentlyEditedRecipeIndex, isRecipeViewerOpen} = this.state;
         const {recipes, editRecipe, deleteRecipe} = this.props;
         const recipe = recipes[currentlyEditedRecipeIndex];
         let recipeViewer;
+        
         if (isRecipeViewerOpen) {
           recipeViewer = <RecipeViewer 
                             recipeIndex={currentlyEditedRecipeIndex} 
