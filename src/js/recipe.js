@@ -13,10 +13,14 @@ window.addEventListener("load", function() {
           }
         },
         componentDidUpdate() {
-          window.localStorage.setItem("_user_recipes", JSON.stringify(this.state.recipes));
+          (window.localStorage) ? window.localStorage.setItem("_user_recipes", JSON.stringify(this.state.recipes)) : null;
         },
         getSavedRecipes() {
-          return JSON.parse(window.localStorage.getItem("_user_recipes"));
+          let savedRecipes = undefined;
+          if (window.localStorage && window.localStorage.getItem("_user_recipes")) {
+            savedRecipes = JSON.parse(window.localStorage.getItem("_user_recipes"));
+          }
+          return savedRecipes;
         },
         addRecipe(title, ingredients) {
           let updatedRecipeList = this.state.recipes;
