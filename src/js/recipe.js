@@ -1,3 +1,5 @@
+const {PropTypes: ReactPropTypes} = React;
+
 window.addEventListener("load", function() {
     const App = React.createClass({
         getInitialState() {
@@ -26,6 +28,16 @@ window.addEventListener("load", function() {
             recipes: updatedRecipeList
           });
         },
+        editRecipe(editedRecipe) {
+          this.setState({
+            recipes: this.state.recipes.map((recipe) => (editedRecipe === recipe) ? editedRecipe : recipe)
+          });
+        },
+        deleteRecipe(recipeToDelete) {
+          this.setState({
+            recipes: this.state.recipes.filter((recipe) => recipe !== recipeToDelete)
+          });
+        },
         openModal() {
           this.setState({modalActive: true});
         },
@@ -38,7 +50,7 @@ window.addEventListener("load", function() {
           return(
             <section className="row">
               <div className="col-xs-12">
-                <RecipeList renderingComponent={this} recipes={this.state.recipes} />
+                <RecipeList renderingComponent={this} recipes={this.state.recipes} editRecipe={this.editRecipe} deleteRecipe={this.deleteRecipe}/>
                 <button onClick={this.openModal} className="btn btn-primary">Create Recipe</button>
               </div>
               {this.state.modalActive ? <RecipeCreatorModal renderingComponent={this} cName={modalClassname} closeModal={this.closeModal.bind(this)}/> : null}
@@ -84,7 +96,11 @@ window.addEventListener("load", function() {
             if (this.state.indicesOfDeletedIngredients.indexOf(i) <= -1) {
               ingredients.push(
                 <li>
-                  <label>Ingredient<input type="text" ref={(c) => this.ingredientNodes.push(c)} className="modal-ingredientInput"/></label>
+                  <label>Ingredient<input type="text" ref={(c) => {
+                    if (this.ingredientNodes.indexOf(c) < 0) {
+                      this.ingredientNodes.push(c);
+                    }
+                  }} className="modal-ingredientInput"/></label>
                   <button onClick={this.removeIngredient.bind(this, i)}><i className="glyphicon glyphicon-trash"></i></button>
                 </li>
               );
@@ -116,6 +132,122 @@ window.addEventListener("load", function() {
             </div>
           );
         }
+    });
+    
+    const MODE = {
+      VIEW_MODE: "view mode",
+      EDIT_MODE: "edit mode"
+    };
+    
+    const RecipeViewer = React.createClass({
+        propTypes: {
+          recipeIndex: ReactPropTypes.number.isRequired,
+          recipe: ReactPropTypes.object.isRequired,
+          deleteRecipe: ReactPropTypes.func.isRequired,
+          editRecipe: ReactPropTypes.func.isRequired,
+          closeRecipeViewer: ReactPropTypes.func.isRequired
+        },
+        getInitialState() {
+          return {
+            mode: MODE.VIEW_MODE, 
+            editedItemIndex: undefined, 
+            editedItemValue: ""
+          };
+        },
+        enterViewMode() {
+          this.setState({mode: MODE.VIEW_MODE});
+        },
+        enterEditMode() {
+          this.setState({mode: MODE.EDIT_MODE});
+        },
+        removeIngredient(ingredientIndex) {
+          this.props.recipe.ingredients = this.props.recipe.ingredients.filter((ingredient, i) => i !== ingredientIndex);
+          this.props.editRecipe(this.props.recipe);
+        },
+        deleteRecipe() {
+          this.props.deleteRecipe(this.props.recipe);
+          this.closeRecipeViewer();
+        },
+        setEditedItemIndex(index) {
+          this.setState({editedItemIndex: index, editedItemValue: this.props.recipe.ingredients[index]});
+        },
+        editIngredient(evt) {
+          this.setState({editedItemValue: evt.target.value});
+        },
+        saveIngredientChanges(index) {
+          this.props.recipe.ingredients[index] = this.state.editedItemValue;
+          this.props.editRecipe(this.props.recipe);
+          this.resetItemIndexAndValue();
+        },
+        resetItemIndexAndValue() {
+          this.setState({
+            editedItemIndex: undefined,
+            editedItemValue: ""
+          });
+        },
+        closeRecipeViewer() {
+          this.props.closeRecipeViewer();
+        },
+        getIngredientListItems() {
+          const listOfIngredients = this.props.recipe.ingredients.map((ingredient, i) => {
+            let ingredientListItem;
+            if (i === this.state.editedItemIndex) {
+              ingredientListItem = <li>
+                                     <input ref={(c) => (c) ? c.focus() : null} onBlur={this.saveIngredientChanges.bind(this, i)} onChange={this.editIngredient} type="text" value={this.state.editedItemValue}/>
+                                   </li>;
+            }
+            else {
+              ingredientListItem = <li>
+                                     <span>{ingredient}</span>
+                                     <button onClick={this.setEditedItemIndex.bind(this, i)}><i className="glyphicon glyphicon-edit"></i></button>
+                                     <button onClick={this.removeIngredient.bind(this, i)}><i className="glyphicon glyphicon-remove-circle"></i></button>
+                                   </li>;
+            }
+            return ingredientListItem;
+          });
+          
+          return listOfIngredients;
+        },
+        render() {
+          const { mode } = this.state;
+          const { recipe } = this.props;
+          var recipeTitle;
+          var recipeIngredients;
+          var deleteRecipeButton;
+          
+          if (mode === MODE.VIEW_MODE) {
+            recipeTitle = <div className="recipeTitleContainer"><span className="recipeTitle">{recipe.title}</span></div>;
+            recipeIngredients = recipe.ingredients.map((ingredient) => <li>{ingredient}</li>);
+            deleteRecipeButton = null;
+          }
+          else if (mode === MODE.EDIT_MODE) {
+            recipeTitle = <div className="recipeTitleContainer"><span className="recipeTitle">{recipe.title}</span></div>;
+            recipeIngredients = this.getIngredientListItems();
+            deleteRecipeButton = <button onClick={this.deleteRecipe} className="btn btn-default">Delete Recipe</button>;
+          }
+          
+          return (
+            <div>
+              <div>
+                <button onClick={this.closeRecipeViewer}><i className="glyphicon glyphicon-remove"></i></button>
+              </div>
+              <div>
+                <button onClick={this.enterViewMode}><i className="glyphicon glyphicon-eye-open"></i></button>
+                <button onClick={this.enterEditMode}><i className="glyphicon glyphicon-pencil"></i></button>
+              </div>
+              <div>
+                { recipeTitle }
+                <p>Ingredients:</p>
+                <ul>
+                  { recipeIngredients }
+                </ul>
+              </div>
+              <div>
+                { deleteRecipeButton }
+              </div>
+            </div>
+          );
+        }  
     });
     
     var RecipeEditorModal = React.createClass({
@@ -170,7 +302,7 @@ window.addEventListener("load", function() {
     
     const RecipeList = React.createClass({
        getInitialState() {
-        return {editing: false, currentlyEditedRecipeIndex: undefined};   
+        return {editing: false, currentlyEditedRecipeIndex: undefined, isRecipeViewerOpen: false};   
        },
        viewRecipe(index) {
          this.props.renderingComponent.setState({modalActive: false});
@@ -184,6 +316,24 @@ window.addEventListener("load", function() {
            recipes: this.props.renderingComponent.state.recipes
              .filter(removeSelected)
          });
+       },
+       openRecipeViewer(index) {
+         this.setState({
+           currentlyEditedRecipeIndex: index, 
+           isRecipeViewerOpen: true
+         });
+       },
+       closeRecipeViewer() {
+         this.setState({isRecipeViewerOpen: false});
+       },
+       renderListOfRecipes() {
+        return this.props.recipes.map((recipe, i) => {
+          return (
+            <li onClick={this.openRecipeViewer.bind(this, i)}>
+              <span>{ recipe.title }</span>
+            </li>
+          );
+        });
        },
        render() {
         const recipeTitleList = this.props.recipes
@@ -199,18 +349,42 @@ window.addEventListener("load", function() {
           .recipes[this.state.currentlyEditedRecipeIndex] : null;
         let recipeTitle = (editableRecipe) ? editableRecipe.title : "";
         let recipeIngredients = (editableRecipe) ? editableRecipe.ingredients : ""; 
+        // return (
+        //     <ul>
+        //       { recipeTitleList }
+        //       <li>
+        //         <RecipeEditorModal editableRecipe={editableRecipe} cName={editorModalClass} 
+        //           renderingComponentsParent={this.props.renderingComponent} 
+        //           title={recipeTitle} ingredients={recipeIngredients}/>
+        //       </li>
+        //     </ul>
+        //     );
+        const {currentlyEditedRecipeIndex, isRecipeViewerOpen} = this.state;
+        const {recipes, editRecipe, deleteRecipe} = this.props;
+        const recipe = recipes[currentlyEditedRecipeIndex];
+        let recipeViewer;
+        if (isRecipeViewerOpen) {
+          recipeViewer = <RecipeViewer 
+                            recipeIndex={currentlyEditedRecipeIndex} 
+                            recipe={recipe} 
+                            editRecipe={editRecipe}
+                            deleteRecipe={deleteRecipe}
+                            closeRecipeViewer={this.closeRecipeViewer}/>;
+        }
+        else {
+          recipeViewer = null;
+        }
+        
         return (
+          <div>
             <ul>
-              { recipeTitleList }
-              <li>
-                <RecipeEditorModal editableRecipe={editableRecipe} cName={editorModalClass} 
-                  renderingComponentsParent={this.props.renderingComponent} 
-                  title={recipeTitle} ingredients={recipeIngredients}/>
-              </li>
+              {this.renderListOfRecipes()}
             </ul>
-            );   
+            {recipeViewer}
+          </div>
+        );
        }
     });
-    ReactDOM.render(<App />, document.querySelector("body"));
+    ReactDOM.render(<App />, document.querySelector(".container-fluid"));
 });
 
