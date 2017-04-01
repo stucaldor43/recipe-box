@@ -3,13 +3,11 @@ const {PropTypes: ReactPropTypes} = React;
 window.addEventListener("load", function() {
     const App = React.createClass({
         getInitialState() {
-          return {modalActive: false, recipes: []};
+          return { modalActive: false, recipes: [] };
         },
-        componentWillMount() {
+        componentDidMount() {
           if (this.getSavedRecipes()) {
-            this.setState({
-              recipes: this.getSavedRecipes()
-            });
+            this.setState((state) => ({ recipes: this.getSavedRecipes() }));
           }
         },
         componentDidUpdate() {
@@ -23,30 +21,43 @@ window.addEventListener("load", function() {
           return savedRecipes;
         },
         addRecipe(title, ingredients) {
-          let updatedRecipeList = this.state.recipes;
-          updatedRecipeList.push({
+          const { recipes } = this.state;
+          const newRecipes = [{
               title: title,
-              ingredients: ingredients
-            });
-          this.setState({
-            recipes: updatedRecipeList
-          });
+              ingredients: ingredients,
+              id: (recipes.length > 0) ? recipes[recipes.length - 1].id + 1 : null 
+          }];
+          this.setState((state) => ({ recipes: state.recipes.concat(newRecipes) }));
         },
-        editRecipe(editedRecipe) {
-          this.setState({
-            recipes: this.state.recipes.map((recipe) => (editedRecipe === recipe) ? editedRecipe : recipe)
+        editRecipe({ editedRecipe, editedIngredientValue, editedIngredientIndex }) {
+          this.setState((state) => {
+            return {
+              recipes: state.recipes.map((recipe, i) => {
+                if (editedRecipe === recipe) {
+                  if (editedIngredientValue) {
+                    editedRecipe.ingredients[editedIngredientIndex] = editedIngredientValue;
+                  }
+                  else {
+                    recipe.ingredients = recipe.ingredients.filter((ingredient, i) => (i !== editedIngredientIndex));  
+                  }
+                }
+                return recipe;
+              })
+            };
           });
         },
         deleteRecipe(recipeToDelete) {
-          this.setState({
-            recipes: this.state.recipes.filter((recipe) => recipe !== recipeToDelete)
+          this.setState((state) => {
+            return {
+              recipes: state.recipes.filter((recipe) => recipe !== recipeToDelete)
+            };
           });
         },
         openModal() {
-          this.setState({modalActive: true});
+          this.setState({ modalActive: true });
         },
         closeModal() {
-          this.setState({modalActive: false});
+          this.setState({ modalActive: false });
         },
         render() {
           let modalClassname = (this.state.modalActive) ? "show" : "hidden";
@@ -54,10 +65,10 @@ window.addEventListener("load", function() {
           return(
             <section className="row">
               <div className="col-xs-12">
-                <RecipeList renderingComponent={this} recipes={this.state.recipes} editRecipe={this.editRecipe} deleteRecipe={this.deleteRecipe}/>
-                <button onClick={this.openModal} className="btn btn-primary">Create Recipe</button>
+                <RecipeList renderingComponent={ this } recipes={ this.state.recipes } editRecipe={ this.editRecipe } deleteRecipe={ this.deleteRecipe }/>
+                <button onClick={ this.openModal } className="btn btn-primary">Create Recipe</button>
               </div>
-              {this.state.modalActive ? <RecipeCreatorModal renderingComponent={this} cName={modalClassname} closeModal={this.closeModal.bind(this)}/> : null}
+              { this.state.modalActive ? <RecipeCreatorModal renderingComponent={ this } cName={ modalClassname } closeModal={ this.closeModal.bind(this) }/> : null }
             </section>
             );
         }
@@ -65,7 +76,7 @@ window.addEventListener("load", function() {
     
     const RecipeCreatorModal = React.createClass({
         getInitialState() {
-          return {ingredientCount: 1, indicesOfDeletedIngredients: []};
+          return { ingredientCount: 1, indicesOfDeletedIngredients: [] };
         },
         componentWillMount() {
           this.ingredientNodes = [];
@@ -105,7 +116,7 @@ window.addEventListener("load", function() {
                       this.ingredientNodes.push(c);
                     }
                   }} className="modal-ingredientInput"/></label>
-                  <button onClick={this.removeIngredient.bind(this, i)}><i className="glyphicon glyphicon-trash"></i></button>
+                  <button onClick={ this.removeIngredient.bind(this, i) }><i className="glyphicon glyphicon-trash"></i></button>
                 </li>
               );
             }
@@ -114,9 +125,9 @@ window.addEventListener("load", function() {
         },
         render() {
           return (
-            <div className={`${this.props.cName} modal`}>
+            <div className={ `${this.props.cName} modal` }>
               <div className="modal-header">
-                <button className="modal-closeButton btn btn-default" onClick={this.closeModal}><i className="glyphicon glyphicon-remove"></i></button>
+                <button className="modal-closeButton btn btn-default" onClick={ this.closeModal }><i className="glyphicon glyphicon-remove"></i></button>
               </div>
               <div className="modal-content">
                 <ul>
@@ -124,14 +135,14 @@ window.addEventListener("load", function() {
                     <label htmlFor="recipeTitle">Title<input type="text" 
                     ref={(c) => this.recipeInput = c} name="recipeTitle" className="modal-titleInput"/></label>
                   </li>
-                  {this.renderIngredients()}
+                  { this.renderIngredients() }
                   <li className="modal-addIngredientButtonContainer">
-                    <button onClick={this.addIngredientSlot} className="modal-addIngredientButton btn btn-default"><i className="glyphicon glyphicon-plus"></i>Add ingredient</button>
+                    <button onClick={ this.addIngredientSlot } className="modal-addIngredientButton btn btn-default"><i className="glyphicon glyphicon-plus"></i>Add ingredient</button>
                   </li>
                 </ul>
               </div>
               <div className="modal-footer">
-                <button onClick={this.saveRecipe} className="btn btn-success btn-default modal-saveRecipeButton">Save Recipe</button>
+                <button onClick={ this.saveRecipe } className="btn btn-success btn-default modal-saveRecipeButton">Save Recipe</button>
               </div>
             </div>
           );
@@ -159,28 +170,34 @@ window.addEventListener("load", function() {
           };
         },
         enterViewMode() {
-          this.setState({mode: MODE.VIEW_MODE});
+          this.setState({ mode: MODE.VIEW_MODE });
         },
         enterEditMode() {
-          this.setState({mode: MODE.EDIT_MODE});
+          this.setState({ mode: MODE.EDIT_MODE });
         },
-        removeIngredient(ingredientIndex) {
-          this.props.recipe.ingredients = this.props.recipe.ingredients.filter((ingredient, i) => i !== ingredientIndex);
-          this.props.editRecipe(this.props.recipe);
+        removeIngredient(indexToDelete) {
+          this.props.editRecipe({
+            editedRecipe: this.props.recipe, 
+            editedIngredientValue: null, 
+            editedIngredientIndex: indexToDelete
+          });
         },
         deleteRecipe() {
           this.props.deleteRecipe(this.props.recipe);
           this.closeRecipeViewer();
         },
         setEditedItemIndex(index) {
-          this.setState({editedItemIndex: index, editedItemValue: this.props.recipe.ingredients[index]});
+          this.setState({ editedItemIndex: index, editedItemValue: this.props.recipe.ingredients[index] });
         },
         editIngredient(evt) {
-          this.setState({editedItemValue: evt.target.value});
+          this.setState({ editedItemValue: evt.target.value });
         },
-        saveIngredientChanges(index) {
-          this.props.recipe.ingredients[index] = this.state.editedItemValue;
-          this.props.editRecipe(this.props.recipe);
+        alterIngredientValue(index) {
+          this.props.editRecipe({
+            editedRecipe: this.props.recipe, 
+            editedIngredientValue: this.state.editedItemValue, 
+            editedIngredientIndex: index
+          });
           this.resetItemIndexAndValue();
         },
         resetItemIndexAndValue() {
@@ -197,14 +214,18 @@ window.addEventListener("load", function() {
             let ingredientListItem;
             if (i === this.state.editedItemIndex) {
               ingredientListItem = <li>
-                                     <input ref={(c) => (c) ? c.focus() : null} onBlur={this.saveIngredientChanges.bind(this, i)} onChange={this.editIngredient} type="text" value={this.state.editedItemValue}/>
+                                     <input ref={(c) => (c) ? c.focus() : null} 
+                                       onBlur={ this.alterIngredientValue.bind(this, i) } 
+                                       onChange={ this.editIngredient } 
+                                       type="text" 
+                                       value={ this.state.editedItemValue }/>
                                    </li>;
             }
             else {
               ingredientListItem = <li>
-                                     <span>{ingredient}</span>
-                                     <button onClick={this.setEditedItemIndex.bind(this, i)}><i className="glyphicon glyphicon-edit"></i></button>
-                                     <button onClick={this.removeIngredient.bind(this, i)}><i className="glyphicon glyphicon-remove-circle"></i></button>
+                                     <span>{ ingredient }</span>
+                                     <button onClick={ this.setEditedItemIndex.bind(this, i) }><i className="glyphicon glyphicon-edit"></i></button>
+                                     <button onClick={ this.removeIngredient.bind(this, i) }><i className="glyphicon glyphicon-remove-circle"></i></button>
                                    </li>;
             }
             return ingredientListItem;
@@ -220,24 +241,24 @@ window.addEventListener("load", function() {
           var deleteRecipeButton;
           
           if (mode === MODE.VIEW_MODE) {
-            recipeTitle = <div className="recipeTitleContainer"><span className="recipeTitle">{recipe.title}</span></div>;
-            recipeIngredients = recipe.ingredients.map((ingredient) => <li>{ingredient}</li>);
+            recipeTitle = <div className="recipeTitleContainer"><span className="recipeTitle">{ recipe.title }</span></div>;
+            recipeIngredients = recipe.ingredients.map((ingredient) => <li>{ ingredient }</li>);
             deleteRecipeButton = null;
           }
           else if (mode === MODE.EDIT_MODE) {
-            recipeTitle = <div className="recipeTitleContainer"><span className="recipeTitle">{recipe.title}</span></div>;
+            recipeTitle = <div className="recipeTitleContainer"><span className="recipeTitle">{ recipe.title }</span></div>;
             recipeIngredients = this.getIngredientListItems();
-            deleteRecipeButton = <button onClick={this.deleteRecipe} className="btn btn-default">Delete Recipe</button>;
+            deleteRecipeButton = <button onClick={ this.deleteRecipe } className="btn btn-default">Delete Recipe</button>;
           }
           
           return (
             <div>
               <div>
-                <button onClick={this.closeRecipeViewer}><i className="glyphicon glyphicon-remove"></i></button>
+                <button onClick={ this.closeRecipeViewer }><i className="glyphicon glyphicon-remove"></i></button>
               </div>
               <div>
-                <button onClick={this.enterViewMode}><i className="glyphicon glyphicon-eye-open"></i></button>
-                <button onClick={this.enterEditMode}><i className="glyphicon glyphicon-pencil"></i></button>
+                <button onClick={ this.enterViewMode }><i className="glyphicon glyphicon-eye-open"></i></button>
+                <button onClick={ this.enterEditMode }><i className="glyphicon glyphicon-pencil"></i></button>
               </div>
               <div>
                 { recipeTitle }
@@ -256,11 +277,11 @@ window.addEventListener("load", function() {
     
     const RecipeList = React.createClass({
        getInitialState() {
-        return {editing: false, currentlyEditedRecipeIndex: undefined, isRecipeViewerOpen: false};   
+        return { editing: false, currentlyEditedRecipeIndex: undefined, isRecipeViewerOpen: false };   
        },
        viewRecipe(index) {
-         this.props.renderingComponent.setState({modalActive: false});
-         this.setState({currentlyEditedRecipeIndex: index, editing: true});
+         this.props.renderingComponent.setState({ modalActive: false });
+         this.setState({ currentlyEditedRecipeIndex: index, editing: true });
        },
        deleteRecipe(indexOfDeletion) {
          var removeSelected = function(elem, i, arr) {
@@ -278,30 +299,30 @@ window.addEventListener("load", function() {
          });
        },
        closeRecipeViewer() {
-         this.setState({isRecipeViewerOpen: false});
+         this.setState({ isRecipeViewerOpen: false });
        },
        renderListOfRecipes() {
         return this.props.recipes.map((recipe, i) => {
           return (
-            <li onClick={this.openRecipeViewer.bind(this, i)}>
+            <li onClick={ this.openRecipeViewer.bind(this, i) }>
               <span>{ recipe.title }</span>
             </li>
           );
         });
        },
        render() {
-        const {currentlyEditedRecipeIndex, isRecipeViewerOpen} = this.state;
-        const {recipes, editRecipe, deleteRecipe} = this.props;
+        const { currentlyEditedRecipeIndex, isRecipeViewerOpen } = this.state;
+        const { recipes, editRecipe, deleteRecipe } = this.props;
         const recipe = recipes[currentlyEditedRecipeIndex];
         let recipeViewer;
         
         if (isRecipeViewerOpen) {
           recipeViewer = <RecipeViewer 
-                            recipeIndex={currentlyEditedRecipeIndex} 
-                            recipe={recipe} 
-                            editRecipe={editRecipe}
-                            deleteRecipe={deleteRecipe}
-                            closeRecipeViewer={this.closeRecipeViewer}/>;
+                            recipeIndex={ currentlyEditedRecipeIndex } 
+                            recipe={ recipe } 
+                            editRecipe={ editRecipe }
+                            deleteRecipe={ deleteRecipe }
+                            closeRecipeViewer={ this.closeRecipeViewer }/>;
         }
         else {
           recipeViewer = null;
@@ -310,9 +331,9 @@ window.addEventListener("load", function() {
         return (
           <div>
             <ul>
-              {this.renderListOfRecipes()}
+              { this.renderListOfRecipes() }
             </ul>
-            {recipeViewer}
+            { recipeViewer }
           </div>
         );
        }
