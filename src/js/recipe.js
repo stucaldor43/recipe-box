@@ -3,7 +3,7 @@ const {PropTypes: ReactPropTypes} = React;
 window.addEventListener("load", function() {
     const App = React.createClass({
         getInitialState() {
-          return { modalActive: false, recipes: [] };
+          return { modalActive: false, recipes: [], recipeBeingViewed: null };
         },
         componentDidMount() {
           if (this.getSavedRecipes()) {
@@ -59,16 +59,36 @@ window.addEventListener("load", function() {
         closeModal() {
           this.setState({ modalActive: false });
         },
+        openRecipeViewer(recipe) {
+          this.setState({ recipeBeingViewed: recipe });
+        },
+        closeRecipeViewer() {
+          this.setState({ recipeBeingViewed: null });
+        },
         render() {
           let modalClassname = (this.state.modalActive) ? "show" : "hidden";
+          const { recipeBeingViewed } = this.state;
+          let recipeViewer;
+          if (recipeBeingViewed) {
+              recipeViewer = <RecipeViewer recipe={ recipeBeingViewed } 
+                            editRecipe={ this.editRecipe }
+                            deleteRecipe={ this.deleteRecipe }
+                            closeRecipeViewer={ this.closeRecipeViewer }/>;
+          }
+          else {
+            recipeViewer = null;
+          }
           
           return(
             <section className="row">
               <div className="col-xs-12">
-                <RecipeList renderingComponent={ this } recipes={ this.state.recipes } editRecipe={ this.editRecipe } deleteRecipe={ this.deleteRecipe }/>
+                <RecipeList openRecipeViewer={ this.openRecipeViewer } 
+                  recipes={ this.state.recipes }>
+                  { recipeViewer }
+                </RecipeList>
                 <button onClick={ this.openModal } className="btn btn-primary">Create Recipe</button>
               </div>
-              { this.state.modalActive ? <RecipeCreatorModal renderingComponent={ this } cName={ modalClassname } closeModal={ this.closeModal.bind(this) }/> : null }
+              { this.state.modalActive ? <RecipeCreatorModal renderingComponent={ this } cName={ modalClassname } closeModal={ this.closeModal }/> : null }
             </section>
             );
         }
@@ -275,69 +295,30 @@ window.addEventListener("load", function() {
         }  
     });
     
-    const RecipeList = React.createClass({
-       getInitialState() {
-        return { editing: false, currentlyEditedRecipeIndex: undefined, isRecipeViewerOpen: false };   
-       },
-       viewRecipe(index) {
-         this.props.renderingComponent.setState({ modalActive: false });
-         this.setState({ currentlyEditedRecipeIndex: index, editing: true });
-       },
-       deleteRecipe(indexOfDeletion) {
-         var removeSelected = function(elem, i, arr) {
-           return i !== indexOfDeletion;
-         }
-         this.props.renderingComponent.setState({
-           recipes: this.props.renderingComponent.state.recipes
-             .filter(removeSelected)
-         });
-       },
-       openRecipeViewer(index) {
-         this.setState({
-           currentlyEditedRecipeIndex: index, 
-           isRecipeViewerOpen: true
-         });
-       },
-       closeRecipeViewer() {
-         this.setState({ isRecipeViewerOpen: false });
-       },
-       renderListOfRecipes() {
-        return this.props.recipes.map((recipe, i) => {
-          return (
-            <li onClick={ this.openRecipeViewer.bind(this, i) }>
-              <span>{ recipe.title }</span>
-            </li>
-          );
-        });
-       },
-       render() {
-        const { currentlyEditedRecipeIndex, isRecipeViewerOpen } = this.state;
-        const { recipes, editRecipe, deleteRecipe } = this.props;
-        const recipe = recipes[currentlyEditedRecipeIndex];
-        let recipeViewer;
-        
-        if (isRecipeViewerOpen) {
-          recipeViewer = <RecipeViewer 
-                            recipeIndex={ currentlyEditedRecipeIndex } 
-                            recipe={ recipe } 
-                            editRecipe={ editRecipe }
-                            deleteRecipe={ deleteRecipe }
-                            closeRecipeViewer={ this.closeRecipeViewer }/>;
-        }
-        else {
-          recipeViewer = null;
-        }
-        
+    function RecipeList(props) {
+      const listOfRecipes = props.recipes.map((recipe, i) => {
         return (
-          <div>
-            <ul>
-              { this.renderListOfRecipes() }
-            </ul>
-            { recipeViewer }
-          </div>
+          <li onClick={ props.openRecipeViewer.bind(this, recipe) }>
+            <span>{ recipe.title }</span>
+          </li>
         );
-       }
-    });
+      });
+        
+      return (
+        <div>
+          <ul>
+            { listOfRecipes }
+          </ul>
+          { props.children }
+        </div>
+      );
+    }
+    
+    RecipeList.propTypes = {
+      recipes: ReactPropTypes.array.isRequired,
+      openRecipeViewer: ReactPropTypes.func.isRequired
+    };
+    
     ReactDOM.render(<App />, document.querySelector(".container-fluid"));
 });
 
