@@ -88,62 +88,74 @@ window.addEventListener("load", function() {
                 </RecipeList>
                 <button onClick={ this.openModal } className="btn btn-primary">Create Recipe</button>
               </div>
-              { this.state.modalActive ? <RecipeCreatorModal renderingComponent={ this } cName={ modalClassname } closeModal={ this.closeModal }/> : null }
+              { this.state.modalActive ? <RecipeCreatorModal addRecipe={ this.addRecipe } cName={ modalClassname } closeModal={ this.closeModal }/> : null }
             </section>
             );
         }
     });
     
     const RecipeCreatorModal = React.createClass({
-        getInitialState() {
-          return { ingredientCount: 1, indicesOfDeletedIngredients: [] };
+        propTypes: {
+          addRecipe: ReactPropTypes.func.isRequired,
+          cName: ReactPropTypes.string.isRequired,
+          closeModal: ReactPropTypes.func.isRequired
         },
-        componentWillMount() {
+        getInitialState() {
+          return { ingredients: [], recipeTitle: "" };
+        },
+        componentDidMount() {
           this.ingredientNodes = [];
-          this.indicesOfDeletedIngredients = [];
+          this.setState((state) => { ingredients: state.ingredients.push({ value: "" }) });
         },
         addIngredientSlot() {
-          this.setState({
-            ingredientCount: this.state.ingredientCount + 1
-          });
+          this.setState((state) => { ingredients: state.ingredients.push({ value: "" }) });
         },
-        removeIngredient(index) {
-          this.state.indicesOfDeletedIngredients.push(index);
-          this.setState({
-            indicesOfDeletedIngredients: this.state.indicesOfDeletedIngredients
+        removeIngredient(indexOfIngredientToDelete) {
+          this.setState((state) => { 
+            return { 
+              ingredients: state.ingredients.filter((item, i) => !(i === indexOfIngredientToDelete)) 
+            };
           });
         },
         saveRecipe() {
           const ingredients = this.ingredientNodes.reduce((ingredients, el) => {
-            (el) ? ingredients.push(el.value.trim()) : null;
+            (el && el.value.trim().length > 0) ? ingredients.push(el.value.trim()) : null;
             return ingredients;
           }, []);
-          this.props.renderingComponent
-            .addRecipe(this.recipeInput.value, ingredients);
+          this.props.addRecipe(this.recipeInput.value, ingredients);
           this.closeModal();
         },
         closeModal() {
           this.props.closeModal();
         },
+        changeRecipeTitle(evt) {
+          this.setState({ recipeTitle: evt.target.value });
+        },
         renderIngredients() {
-          const ingredients = [];
-          for (let i = 0; i < this.state.ingredientCount; i++) {
-            if (this.state.indicesOfDeletedIngredients.indexOf(i) <= -1) {
-              ingredients.push(
-                <li>
-                  <label>Ingredient<input type="text" ref={(c) => {
-                    if (this.ingredientNodes.indexOf(c) < 0) {
-                      this.ingredientNodes.push(c);
-                    }
-                  }} className="modal-ingredientInput"/></label>
-                  <button onClick={ this.removeIngredient.bind(this, i) }><i className="glyphicon glyphicon-trash"></i></button>
-                </li>
-              );
-            }
-          }
+          const ingredients = this.state.ingredients.map((item, i) => {
+            return (
+              <li>
+                <label>Ingredient<input type="text" ref={(c) => {
+                  if (this.ingredientNodes.indexOf(c) < 0) {
+                    this.ingredientNodes.push(c);
+                  }
+                }} className="modal-ingredientInput"/></label>
+                <button onClick={ this.removeIngredient.bind(this, i) }><i className="glyphicon glyphicon-trash"></i></button>
+              </li>
+            );
+          });
           return ingredients;
         },
         render() {
+          const { recipeTitle } = this.state;
+          var saveButton;
+          if (this.recipeInput && this.recipeInput.value.trim().length > 0) {
+            saveButton = <button onClick={ this.saveRecipe } className="btn btn-success btn-default modal-saveRecipeButton">Save Recipe</button>;
+          }
+          else {
+            saveButton = <button disabled="true" onClick={ this.saveRecipe } className="btn btn-success btn-default modal-saveRecipeButton">Save Recipe</button>;
+          }
+          
           return (
             <div className={ `${this.props.cName} modal` }>
               <div className="modal-header">
@@ -153,7 +165,7 @@ window.addEventListener("load", function() {
                 <ul>
                   <li className="modal-titleInputContainer">
                     <label htmlFor="recipeTitle">Title<input type="text" 
-                    ref={(c) => this.recipeInput = c} name="recipeTitle" className="modal-titleInput"/></label>
+                    ref={(c) => this.recipeInput = c} value={ recipeTitle } onChange={ this.changeRecipeTitle } name="recipeTitle" className="modal-titleInput"/></label>
                   </li>
                   { this.renderIngredients() }
                   <li className="modal-addIngredientButtonContainer">
@@ -162,7 +174,7 @@ window.addEventListener("load", function() {
                 </ul>
               </div>
               <div className="modal-footer">
-                <button onClick={ this.saveRecipe } className="btn btn-success btn-default modal-saveRecipeButton">Save Recipe</button>
+                { saveButton }
               </div>
             </div>
           );
