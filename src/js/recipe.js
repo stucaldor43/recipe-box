@@ -25,9 +25,10 @@ window.addEventListener("load", function() {
           const newRecipes = [{
               title: {
                 name: title,
+                id: 0
               },
-              ingredients: ingredients.map((name) => ({ name }) ),
-              id: (recipes.length > 0) ? recipes[recipes.length - 1].id + 1 : null 
+              ingredients: ingredients.map((name, i) => ({ name, id: i + 1 }) ),
+              id: (recipes.length > 0) ? recipes[recipes.length - 1].id + 1 : 0 
           }];
           this.setState((state) => ({ recipes: state.recipes.concat(newRecipes) }));
         },
@@ -45,14 +46,14 @@ window.addEventListener("load", function() {
             };
           });
         },
-        alterIngredient(editedRecipe, editedIngredient, evt) {
+        alterIngredient({ editedRecipe, editedIngredient}, evt ) {
           const newIngredientValue = evt.target.value;
           this.setState((state) => {
             return {
               recipes: state.recipes.map((recipe) => {
                   if (recipe === editedRecipe) {
                     recipe.ingredients = editedRecipe.ingredients.map((ingredient) => {
-                      if (ingredient === editedIngredient) {
+                      if (ingredient.id === editedIngredient.id) {
                         ingredient.name = newIngredientValue;
                       } 
                       return ingredient;
@@ -64,12 +65,12 @@ window.addEventListener("load", function() {
             };
           });
         },
-        removeIngredient(editedRecipe, ingredientToRemove) {
+        removeIngredient({ editedRecipe, ingredientToDiscard} ) {
           this.setState((state) => {
             return {
               recipes: state.recipes.map((recipe) => {
                 if (recipe === editedRecipe) {
-                  recipe.ingredients = editedRecipe.ingredients.filter((ingredient) => ingredient !== ingredientToRemove);
+                  recipe.ingredients = editedRecipe.ingredients.filter((ingredient) => ingredient.id !== ingredientToDiscard.id);
                   return recipe;
                 }
                 return recipe;
@@ -77,12 +78,13 @@ window.addEventListener("load", function() {
             };
           });
         },
-        addIngredient(editedRecipe) {
+        addIngredient({ editedRecipe }) {
           this.setState((state) => {
             return {
               recipes: state.recipes.map((recipe) => {
                 if (recipe === editedRecipe) {
-                  recipe.ingredients = editedRecipe.ingredients.concat({ name: "" });
+                  const id = (recipe.ingredients.length <= 0) ? 0 : editedRecipe.ingredients[editedRecipe.ingredients.length - 1].id + 1;
+                  recipe.ingredients = editedRecipe.ingredients.concat({ name: "", id });
                 } 
                 return recipe;
               })
@@ -239,7 +241,7 @@ window.addEventListener("load", function() {
         },
         getInitialState() {
           return {
-            editableItem: null
+            editableItemId: null
           };
         },
         deleteRecipe() {
@@ -247,10 +249,10 @@ window.addEventListener("load", function() {
           this.closeRecipeViewer();
         },
         setEditableItem(item) {
-          this.setState({ editableItem: item });
+          this.setState({ editableItemId: item.id });
         },
         clearEditableItem() {
-          this.setState({ editableItem: null });
+          this.setState({ editableItemId: null });
         },
         closeRecipeViewer() {
           this.props.closeRecipeViewer();
@@ -259,7 +261,7 @@ window.addEventListener("load", function() {
           let recipeTitle;
           let recipeIngredients;
           
-          if (this.state.editableItem === this.props.recipe.title) {
+          if (this.state.editableItemId === this.props.recipe.title.id) {
             recipeTitle = <div>
                             <input value={ this.props.recipe.title.name } onChange={ this.props.alterTitle.bind(this, this.props.recipe) } onBlur={ this.clearEditableItem } />
                           </div>;
@@ -272,11 +274,11 @@ window.addEventListener("load", function() {
           }
           
           recipeIngredients = this.props.recipe.ingredients.map((ingredient, i) => {
-            if (ingredient === this.state.editableItem) {
+            if (ingredient.id === this.state.editableItemId) {
               return (
                 <li>
                   <input value={ ingredient.name } 
-                         onChange={ this.props.alterIngredient.bind(this, this.props.recipe, ingredient) } 
+                         onChange={ this.props.alterIngredient.bind(this, { editedRecipe: this.props.recipe, editedIngredient: ingredient }) } 
                          onBlur={ this.clearEditableItem }/>  
                 </li>
               );  
@@ -285,7 +287,7 @@ window.addEventListener("load", function() {
               <li>
                 <span>{ ingredient.name }</span>
                 <button onClick={ this.setEditableItem.bind(this, ingredient) }><i className="glyphicon glyphicon-edit"></i></button>
-                <button onClick={ this.props.removeIngredient.bind(this, this.props.recipe, ingredient) }><i className="glyphicon glyphicon-remove-circle"></i></button>
+                <button onClick={ this.props.removeIngredient.bind(this, { editedRecipe: this.props.recipe, ingredientToDiscard: ingredient }) }><i className="glyphicon glyphicon-remove-circle"></i></button>
               </li>
             );
           });
@@ -303,7 +305,7 @@ window.addEventListener("load", function() {
                   { recipeIngredients }
                 </ul>
                 <div>
-                  <button onClick={ this.props.addIngredient.bind(this, this.props.recipe) } 
+                  <button onClick={ this.props.addIngredient.bind(this, { editedRecipe: this.props.recipe }) } 
                           className="btn btn-default">
                   <i className="glyphicon glyphicon-plus"></i>Add ingredient</button>
                 </div>
