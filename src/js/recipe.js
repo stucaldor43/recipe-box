@@ -145,7 +145,7 @@ window.addEventListener("load", function() {
     const RecipeCreatorModal = React.createClass({
         propTypes: {
           addRecipe: ReactPropTypes.func.isRequired,
-          cName: ReactPropTypes.string.isRequired,
+          classes: ReactPropTypes.string.isRequired,
           closeModal: ReactPropTypes.func.isRequired
         },
         getInitialState() {
@@ -153,10 +153,21 @@ window.addEventListener("load", function() {
         },
         componentDidMount() {
           this.ingredientNodes = [];
-          this.setState((state) => { ingredients: state.ingredients.push({ value: "" }) });
+          this.setState((state) => { 
+            return {
+              ingredients: state.ingredients.concat([{ value: "", id: 0 }]) 
+            };
+          });
         },
         addIngredientSlot() {
-          this.setState((state) => { ingredients: state.ingredients.push({ value: "" }) });
+          this.setState((state) => { 
+            return { 
+              ingredients: state.ingredients.concat([{ 
+                value: "", 
+                id: state.ingredients[state.ingredients.length - 1].id + 1 
+              }])
+            };
+          });
         },
         removeIngredient(indexOfIngredientToDelete) {
           this.setState((state) => { 
@@ -167,8 +178,7 @@ window.addEventListener("load", function() {
         },
         saveRecipe() {
           const ingredients = this.ingredientNodes.reduce((ingredients, el) => {
-            (el && el.value.trim().length > 0) ? ingredients.push(el.value.trim()) : null;
-            return ingredients;
+            return (el && el.value.trim().length > 0) ? ingredients.concat([el.value.trim()]) : ingredients;
           }, []);
           this.props.addRecipe(this.recipeInput.value, ingredients);
           this.closeModal();
@@ -182,13 +192,18 @@ window.addEventListener("load", function() {
         renderIngredients() {
           const ingredients = this.state.ingredients.map((item, i) => {
             return (
-              <li>
-                <label>Ingredient<input type="text" ref={(c) => {
-                  if (this.ingredientNodes.indexOf(c) < 0) {
-                    this.ingredientNodes.push(c);
-                  }
-                }} className="modal-ingredientInput"/></label>
-                <button onClick={ this.removeIngredient.bind(this, i) }><i className="glyphicon glyphicon-trash"></i></button>
+              <li className="recipeCreatorModal-ingredientItem" key={ item.id }>
+                <EditableItem isEditable={ true } 
+                              placeholder="ingredient" 
+                              refCallback={(c) => {
+                               if (this.ingredientNodes.indexOf(c) < 0) {
+                                 this.ingredientNodes.push(c);
+                               }
+                             }}/>
+                <button className="recipeCreatorModal-deleteIngredientButton" 
+                        onClick={ this.removeIngredient.bind(this, i) }>
+                  <i className="glyphicon glyphicon-trash"></i>
+                </button>
               </li>
             );
           });
@@ -196,32 +211,33 @@ window.addEventListener("load", function() {
         },
         render() {
           const { recipeTitle } = this.state;
-          var saveButton;
-          if (this.recipeInput && this.recipeInput.value.trim().length > 0) {
-            saveButton = <button onClick={ this.saveRecipe } className="btn btn-success btn-default modal-saveRecipeButton">Save Recipe</button>;
-          }
-          else {
-            saveButton = <button disabled="true" onClick={ this.saveRecipe } className="btn btn-success btn-default modal-saveRecipeButton">Save Recipe</button>;
-          }
+          let saveButton;
+          let domProps = (!(this.recipeInput && this.recipeInput.value.trim().length > 0)) ? { disabled: "true" } : {};
+          saveButton = <button { ...domProps } 
+                              onClick={ this.saveRecipe } 
+                              className="btn btn-success btn-default recipeCreatorModal-saveRecipeButton">
+                              Save Recipe</button>;
           
           return (
-            <div className={ `${this.props.cName} modal` }>
-              <div className="modal-header">
-                <button className="modal-closeButton btn btn-default" onClick={ this.closeModal }><i className="glyphicon glyphicon-remove"></i></button>
+            <div className={ `${this.props.classes} modal recipeCreatorModal` }>
+              <div className="modal-header recipeCreatorModal-header">
+                <button className="recipeCreatorModal-closeButton close glyphicon glyphicon-remove" 
+                        onClick={ this.closeModal }></button>
               </div>
-              <div className="modal-content">
-                <ul>
-                  <li className="modal-titleInputContainer">
-                    <label htmlFor="recipeTitle">Title<input type="text" 
-                    ref={(c) => this.recipeInput = c} value={ recipeTitle } onChange={ this.changeRecipeTitle } name="recipeTitle" className="modal-titleInput"/></label>
-                  </li>
+              <div className="modal-content recipeCreatorModal-content">
+                <div className="recipeCreatorModal-titleContainer">
+                  <EditableItem isEditable={ true } 
+                                value={ recipeTitle } 
+                                placeholder="title" 
+                                refCallback={(c) => this.recipeInput = c}
+                                onChangeHandler={ this.changeRecipeTitle }/>
+                </div>
+                <ul className="recipeCreatorModal-ingredientList">
                   { this.renderIngredients() }
-                  <li className="modal-addIngredientButtonContainer">
-                    <button onClick={ this.addIngredientSlot } className="modal-addIngredientButton btn btn-default"><i className="glyphicon glyphicon-plus"></i>Add ingredient</button>
-                  </li>
                 </ul>
+                <button onClick={ this.addIngredientSlot } className="recipeCreatorModal-addIngredientButton btn btn-default"><i className="glyphicon glyphicon-plus"></i>Add ingredient</button>
               </div>
-              <div className="modal-footer">
+              <div className="modal-footer recipeCreatorModal-footer">
                 { saveButton }
               </div>
             </div>
