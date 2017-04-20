@@ -342,6 +342,60 @@ window.addEventListener("load", function() {
       openRecipeViewer: ReactPropTypes.func.isRequired
     };
     
+    const EditableItem = React.createClass({
+        render() {
+          let element;
+          let domProps = {};
+          if (this.props.isEditable) {
+            (this.props.placeholder) ? domProps.placeholder = this.props.placeholder : null;
+            (this.props.value) ? domProps.value = this.props.value : null;
+          }
+          else {
+            domProps.disabled = "true";
+            domProps.value = this.props.value;
+            // element = <span>{ this.props.value }</span>;
+          }
+          element = <input type="text"
+                           { ...domProps }
+                           onChange={ this.props.onChangeHandler }
+                           onBlur={ this.props.onBlurHandler }
+                           ref={ this.props.refCallback }/>;
+          
+          return (
+            <span>{ element }</span>  
+          );
+        }
+    });
+    
+    EditableItem.propTypes = {
+      isEditable: ReactPropTypes.bool.isRequired,
+      value: ReactPropTypes.string,
+      placeholder: ReactPropTypes.string,
+      onChangeHandler: ReactPropTypes.func,
+      onBlurHandler: ReactPropTypes.func,
+      refCallback: ReactPropTypes.func
+    };
+    
+    EditableItem.defaultProps = {
+      onChangeHandler: () => {},
+      onBlurHandler: () => {},
+      refCallback: () => {}
+    };
+    
+    // const Button = React.createClass({
+    //   render() {
+    //     return (
+    //       <button className={ `btn ${this.props.category}` } 
+    //               onClick={ this.props.clickHandler }>{ this.props.children }</button>
+    //     );
+    //   }
+    // });
+    
+    // Button.propTypes = {
+    //   clickHandler: ReactPropTypes.func.isRequired,
+    //   category: ReactPropTypes.oneOf(["primary", "danger"]).isRequired 
+    // };
+    
     ReactDOM.render(<App />, document.querySelector(".container-fluid"));
 });
 
