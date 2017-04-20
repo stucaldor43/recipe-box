@@ -128,16 +128,14 @@ window.addEventListener("load", function() {
           }
           
           return(
-            <section className="row">
-              <div className="col-xs-12">
-                <RecipeList openRecipeViewer={ this.openRecipeViewer } 
-                  recipes={ this.state.recipes }>
+            <div className="container-inner">
+              <RecipeList openRecipeViewer={ this.openRecipeViewer } 
+                          recipes={ this.state.recipes }>
                   { recipeViewer }
-                </RecipeList>
-                <button onClick={ this.openModal } className="btn btn-primary">Create Recipe</button>
-              </div>
-              { this.state.modalActive ? <RecipeCreatorModal addRecipe={ this.addRecipe } cName={ modalClassname } closeModal={ this.closeModal }/> : null }
-            </section>
+              </RecipeList>
+              <button onClick={ this.openModal } className="btn btn-primary">Create Recipe</button>
+              { this.state.modalActive ? <RecipeCreatorModal addRecipe={ this.addRecipe } classes={ modalClassname } closeModal={ this.closeModal }/> : null }
+            </div>
             );
         }
     });
@@ -260,6 +258,13 @@ window.addEventListener("load", function() {
             editableItemId: null
           };
         },
+        componentDidUpdate(prevProps, prevState) {
+          const editButtonWasRecentlyClicked = prevState.editableItemId !== this.state.editableItemId && 
+                                               typeof this.state.editableItemId === "number";
+          if (editButtonWasRecentlyClicked) {
+            this[this.state.editableItemId].focus();
+          }
+        },
         deleteRecipe() {
           this.props.deleteRecipe(this.props.recipe);
           this.closeRecipeViewer();
@@ -273,40 +278,57 @@ window.addEventListener("load", function() {
         closeRecipeViewer() {
           this.props.closeRecipeViewer();
         },
-        render() {
-          let recipeTitle;
-          let recipeIngredients;
-          
+        renderTitleInput() {
+          let recipeTitle, editButton;
+          let domProps = {
+            refCallback: (c) => this[this.props.recipe.title.id] = c
+          };
           if (this.state.editableItemId === this.props.recipe.title.id) {
-            recipeTitle = <div>
-                            <input value={ this.props.recipe.title.name } onChange={ this.props.alterTitle.bind(this, this.props.recipe) } onBlur={ this.clearEditableItem } />
-                          </div>;
+            domProps.isEditable = true;
+            domProps.value = this.props.recipe.title.name;
+            domProps.onChangeHandler = this.props.alterTitle.bind(this, this.props.recipe);
+            domProps.onBlurHandler = this.clearEditableItem;
+            editButton = null;
           }
           else {
-            recipeTitle = <div>
-                            <span>{ this.props.recipe.title.name }</span>
-                            <button onClick={ this.setEditableItem.bind(this, this.props.recipe.title) }><i className="glyphicon glyphicon-edit"></i></button>
-                          </div>;
+            domProps.isEditable = false;
+            domProps.value = this.props.recipe.title.name; 
+            editButton = <button onClick={ this.setEditableItem.bind(this, this.props.recipe.title) }><i className="glyphicon glyphicon-edit"></i></button>;
           }
-          
+          recipeTitle = <div>
+                          <EditableItem { ...domProps }/>{ editButton }
+                        </div>;
+          return recipeTitle;
+        },
+        renderIngredientInputs() {
+          let recipeIngredients;
           recipeIngredients = this.props.recipe.ingredients.map((ingredient, i) => {
+            let buttons;
+            let domProps = {
+              value: ingredient.name,
+              refCallback: (c) => this[ingredient.id] = c
+            };
             if (ingredient.id === this.state.editableItemId) {
-              return (
-                <li>
-                  <input value={ ingredient.name } 
-                         onChange={ this.props.alterIngredient.bind(this, { editedRecipe: this.props.recipe, editedIngredient: ingredient }) } 
-                         onBlur={ this.clearEditableItem }/>  
-                </li>
-              );  
+              domProps.isEditable = true;
+              domProps.onChangeHandler = this.props.alterIngredient.bind(this, { editedRecipe: this.props.recipe, editedIngredient: ingredient });
+              domProps.onBlurHandler = this.clearEditableItem;
+              buttons = null;
             }
+            else {
+              domProps.isEditable = false;
+              buttons = <span><button onClick={ this.setEditableItem.bind(this, ingredient) }><i className="glyphicon glyphicon-edit"></i></button>
+                <button onClick={ this.props.removeIngredient.bind(this, { editedRecipe: this.props.recipe, ingredientToDiscard: ingredient }) }><i className="glyphicon glyphicon-remove-circle"></i></button></span>;
+            }
+            
             return (
               <li>
-                <span>{ ingredient.name }</span>
-                <button onClick={ this.setEditableItem.bind(this, ingredient) }><i className="glyphicon glyphicon-edit"></i></button>
-                <button onClick={ this.props.removeIngredient.bind(this, { editedRecipe: this.props.recipe, ingredientToDiscard: ingredient }) }><i className="glyphicon glyphicon-remove-circle"></i></button>
+                <EditableItem { ...domProps }/>{ buttons }
               </li>
             );
           });
+          return recipeIngredients;
+        },
+        render() {
           const deleteRecipeButton = <button onClick={ this.deleteRecipe } className="btn btn-default">Delete Recipe</button>;
           
           return (
@@ -315,10 +337,10 @@ window.addEventListener("load", function() {
                 <button onClick={ this.closeRecipeViewer }><i className="glyphicon glyphicon-remove"></i></button>
               </div>
               <div>
-                { recipeTitle }
+                { this.renderTitleInput() }
                 <p>Ingredients:</p>
                 <ul>
-                  { recipeIngredients }
+                  { this.renderIngredientInputs() }
                 </ul>
                 <div>
                   <button onClick={ this.props.addIngredient.bind(this, { editedRecipe: this.props.recipe }) } 
