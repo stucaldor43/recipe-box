@@ -131,9 +131,9 @@ window.addEventListener("load", function() {
             <div className="container-inner">
               <RecipeList openRecipeViewer={ this.openRecipeViewer } 
                           recipes={ this.state.recipes }>
-                  { recipeViewer }
               </RecipeList>
               <button onClick={ this.openModal } className="btn btn-primary">Create Recipe</button>
+              { recipeViewer }
               { this.state.modalActive ? <RecipeCreatorModal addRecipe={ this.addRecipe } classes={ modalClassname } closeModal={ this.closeModal }/> : null }
             </div>
             );
@@ -293,9 +293,12 @@ window.addEventListener("load", function() {
           else {
             domProps.isEditable = false;
             domProps.value = this.props.recipe.title.name; 
-            editButton = <button onClick={ this.setEditableItem.bind(this, this.props.recipe.title) }><i className="glyphicon glyphicon-edit"></i></button>;
+            editButton = <button className="recipeViewer-editTitleButton" 
+                                 onClick={ this.setEditableItem.bind(this, this.props.recipe.title) }>
+                            <i className="glyphicon glyphicon-edit"></i>
+                         </button>;
           }
-          recipeTitle = <div>
+          recipeTitle = <div className="recipeViewer-titleContainer">
                           <EditableItem { ...domProps }/>{ editButton }
                         </div>;
           return recipeTitle;
@@ -316,12 +319,20 @@ window.addEventListener("load", function() {
             }
             else {
               domProps.isEditable = false;
-              buttons = <span><button onClick={ this.setEditableItem.bind(this, ingredient) }><i className="glyphicon glyphicon-edit"></i></button>
-                <button onClick={ this.props.removeIngredient.bind(this, { editedRecipe: this.props.recipe, ingredientToDiscard: ingredient }) }><i className="glyphicon glyphicon-remove-circle"></i></button></span>;
+              buttons = <span>
+                          <button className="recipeViewer-editIngredientButton" 
+                                  onClick={ this.setEditableItem.bind(this, ingredient) }>
+                            <i className="glyphicon glyphicon-edit"></i>
+                          </button>
+                          <button className="recipeViewer-deleteIngredientButton" 
+                                  onClick={ this.props.removeIngredient.bind(this, { editedRecipe: this.props.recipe, ingredientToDiscard: ingredient }) }>
+                            <i className="glyphicon glyphicon-remove-circle"></i>
+                          </button>
+                        </span>;
             }
             
             return (
-              <li>
+              <li className="recipeViewer-ingredientItem" key={ ingredient.id }>
                 <EditableItem { ...domProps }/>{ buttons }
               </li>
             );
@@ -329,26 +340,27 @@ window.addEventListener("load", function() {
           return recipeIngredients;
         },
         render() {
-          const deleteRecipeButton = <button onClick={ this.deleteRecipe } className="btn btn-default">Delete Recipe</button>;
+          const deleteRecipeButton = <button onClick={ this.deleteRecipe } className="recipeViewer-deleteRecipeButton btn btn-default">Delete Recipe</button>;
           
           return (
-            <div>
-              <div>
-                <button onClick={ this.closeRecipeViewer }><i className="glyphicon glyphicon-remove"></i></button>
+            <div className="recipeViewer">
+              <div className="recipeViewer-header">
+                <button className="recipeViewer-closeButton" 
+                        onClick={ this.closeRecipeViewer }>
+                  <i className="glyphicon glyphicon-remove"></i>
+                </button>
               </div>
-              <div>
+              <div className="recipeViewer-content">
                 { this.renderTitleInput() }
                 <p>Ingredients:</p>
-                <ul>
+                <ul className="recipeViewer-ingredientList">
                   { this.renderIngredientInputs() }
                 </ul>
-                <div>
-                  <button onClick={ this.props.addIngredient.bind(this, { editedRecipe: this.props.recipe }) } 
-                          className="btn btn-default">
+                <button onClick={ this.props.addIngredient.bind(this, { editedRecipe: this.props.recipe }) } 
+                        className="recipeViewer-addIngredientButton btn btn-default">
                   <i className="glyphicon glyphicon-plus"></i>Add ingredient</button>
-                </div>
               </div>
-              <div>
+              <div className="recipeViewer-footer">
                 { deleteRecipeButton }
               </div>
             </div>
@@ -359,19 +371,18 @@ window.addEventListener("load", function() {
     function RecipeList(props) {
       const listOfRecipes = props.recipes.map((recipe, i) => {
         return (
-          <li onClick={ props.openRecipeViewer.bind(this, recipe) }>
-            <span>{ recipe.title.name }</span>
+          <li className="recipeList-recipeItem" 
+              onClick={ props.openRecipeViewer.bind(this, recipe) } 
+              key={ recipe.id }>
+            <span className="recipeList-recipeTitle">{ recipe.title.name }</span>
           </li>
         );
       });
         
       return (
-        <div>
-          <ul>
-            { listOfRecipes }
-          </ul>
-          { props.children }
-        </div>
+        <ul className="recipeList">
+          { listOfRecipes }
+        </ul>
       );
     }
     
@@ -391,9 +402,9 @@ window.addEventListener("load", function() {
           else {
             domProps.disabled = "true";
             domProps.value = this.props.value;
-            // element = <span>{ this.props.value }</span>;
           }
           element = <input type="text"
+                           className={ `editableItem ${(domProps.disabled) ? "editableItem-isNotBeingEdited" :"editableItem-isBeingEdited"}` }
                            { ...domProps }
                            onChange={ this.props.onChangeHandler }
                            onBlur={ this.props.onBlurHandler }
