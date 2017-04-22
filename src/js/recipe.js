@@ -130,9 +130,9 @@ window.addEventListener("load", function() {
           return(
             <div className="container-inner">
               <RecipeList openRecipeViewer={ this.openRecipeViewer } 
-                          recipes={ this.state.recipes }>
+                          recipes={ this.state.recipes }
+                          openModal={ this.openModal }>
               </RecipeList>
-              <button onClick={ this.openModal } className="btn btn-primary">Create Recipe</button>
               { recipeViewer }
               { this.state.modalActive ? <RecipeCreatorModal addRecipe={ this.addRecipe } classes={ modalClassname } closeModal={ this.closeModal }/> : null }
             </div>
@@ -345,7 +345,7 @@ window.addEventListener("load", function() {
           return (
             <div className="recipeViewer">
               <div className="recipeViewer-header">
-                <button className="recipeViewer-closeButton" 
+                <button className="recipeViewer-closeButton close" 
                         onClick={ this.closeRecipeViewer }>
                   <i className="glyphicon glyphicon-remove"></i>
                 </button>
@@ -356,11 +356,11 @@ window.addEventListener("load", function() {
                 <ul className="recipeViewer-ingredientList">
                   { this.renderIngredientInputs() }
                 </ul>
+              </div>
+              <div className="recipeViewer-footer">
                 <button onClick={ this.props.addIngredient.bind(this, { editedRecipe: this.props.recipe }) } 
                         className="recipeViewer-addIngredientButton btn btn-default">
                   <i className="glyphicon glyphicon-plus"></i>Add ingredient</button>
-              </div>
-              <div className="recipeViewer-footer">
                 { deleteRecipeButton }
               </div>
             </div>
@@ -380,15 +380,21 @@ window.addEventListener("load", function() {
       });
         
       return (
-        <ul className="recipeList">
-          { listOfRecipes }
-        </ul>
+        <div className="recipeList">
+          <div className="recipeList-shelf">
+            <ul className="recipeList-itemList">
+              { listOfRecipes }
+            </ul>
+          </div>
+          <button onClick={ props.openModal } className="recipeList-createRecipeButton btn">Create Recipe</button>
+        </div>
       );
     }
     
     RecipeList.propTypes = {
       recipes: ReactPropTypes.array.isRequired,
-      openRecipeViewer: ReactPropTypes.func.isRequired
+      openRecipeViewer: ReactPropTypes.func.isRequired,
+      openModal: ReactPropTypes.func.isRequired
     };
     
     const EditableItem = React.createClass({
