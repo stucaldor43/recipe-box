@@ -112,13 +112,23 @@ body {
   right: 16px; }
 
 .recipeViewer-titleContainer {
-  margin-bottom: 16px; }
+  margin-bottom: 16px;
+  position: relative;
+  padding-right: 28px; }
 
 .recipeViewer-titleContainer .editableItem {
   font-weight: 900; }
 
+.recipeViewer-editTitleButton {
+  color: #b9b9b9;
+  position: absolute;
+  top: 0;
+  right: 0; }
+
 .recipeViewer-ingredientItem {
-  margin-bottom: 8px; }
+  margin-bottom: 8px;
+  position: relative;
+  padding-right: 56px; }
 
 .recipeViewer-ingredientItem[data-index]:before {
   content: attr(data-index);
@@ -126,16 +136,24 @@ body {
   padding: 4px 8px;
   border-radius: 50%;
   background-color: #a694f2;
-  color: #FFF; }
+  color: #FFF;
+  vertical-align: top; }
 
 .recipeViewer .editableItem {
   border: none;
   background-color: inherit;
-  min-width: 60%; }
+  min-width: 60%;
+  resize: none; }
 
 @media (max-width: 448px) {
   .recipeViewer .editableItem {
     width: 150px; } }
+.recipeViewer-ingredientActions {
+  position: absolute;
+  top: 0;
+  right: 0;
+  color: #b9b9b9; }
+
 .recipeViewer-editIngredientButton, .recipeViewer-deleteIngredientButton,
 .recipeViewer-editTitleButton, .recipeViewer-closeButton {
   background-color: transparent;
@@ -147,7 +165,7 @@ body {
 
 @media (max-width: 448px) {
   .recipeViewer-content {
-    padding: 32px 8px 0 8px; } }
+    padding: 32px 16px 0 16px; } }
 .recipeViewer-addIngredientButton, .recipeViewer-deleteRecipeButton {
   width: 50%;
   border-radius: unset;

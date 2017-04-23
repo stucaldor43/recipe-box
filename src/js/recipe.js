@@ -319,7 +319,7 @@ window.addEventListener("load", function() {
             }
             else {
               domProps.isEditable = false;
-              buttons = <span>
+              buttons = <span className="recipeViewer-ingredientActions">
                           <button className="recipeViewer-editIngredientButton" 
                                   onClick={ this.setEditableItem.bind(this, ingredient) }>
                             <i className="glyphicon glyphicon-edit"></i>
@@ -398,8 +398,21 @@ window.addEventListener("load", function() {
     };
     
     const EditableItem = React.createClass({
+        componentDidMount() {
+          this.autoGrow();
+          window.addEventListener("resize", this.autoGrow);
+        },
+        componentDidUpdate(prevProps, prevState) {
+          if (this.props.value !== prevProps.value) {
+            this.autoGrow();
+          }
+        },
+        autoGrow() {
+          const element = ReactDOM.findDOMNode(this);
+          element.style.height = "auto";
+          element.style.height = `${element.scrollHeight}px`;
+        },
         render() {
-          let element;
           let domProps = {};
           if (this.props.isEditable) {
             (this.props.placeholder) ? domProps.placeholder = this.props.placeholder : null;
@@ -409,15 +422,13 @@ window.addEventListener("load", function() {
             domProps.disabled = "true";
             domProps.value = this.props.value;
           }
-          element = <input type="text"
-                           className={ `editableItem ${(domProps.disabled) ? "editableItem-isNotBeingEdited" :"editableItem-isBeingEdited"}` }
+          
+          return (
+            <textarea className={ `editableItem ${(domProps.disabled) ? "editableItem-isNotBeingEdited" :"editableItem-isBeingEdited"}` }
                            { ...domProps }
                            onChange={ this.props.onChangeHandler }
                            onBlur={ this.props.onBlurHandler }
-                           ref={ this.props.refCallback }/>;
-          
-          return (
-            <span>{ element }</span>  
+                           ref={ this.props.refCallback }></textarea>
           );
         }
     });

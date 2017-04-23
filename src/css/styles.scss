@@ -21,6 +21,7 @@ $salmon: #f2a694;
 $peach: #f5b9ab;
 $grey: grey;
 $purple: #a694f2;
+$dark-grey: #b9b9b9;
 
 /**********************************
             Buttons
@@ -143,15 +144,26 @@ body {
 }
 
 .recipeViewer-titleContainer {
-    margin-bottom: 16px;   
+    margin-bottom: 16px;
+    position: relative;
+    padding-right: 28px;
 }
 
 .recipeViewer-titleContainer .editableItem {
     font-weight: 900;
 }
 
+.recipeViewer-editTitleButton {
+    color: $dark-grey;
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
 .recipeViewer-ingredientItem {
     margin-bottom: 8px;
+    position: relative;
+    padding-right: 56px;
 }
 
 .recipeViewer-ingredientItem[data-index]:before {
@@ -161,18 +173,27 @@ body {
     border-radius: 50%;
     background-color: $purple;
     color: $white;
+    vertical-align: top;
 }
 
 .recipeViewer .editableItem {
     border: none;
     background-color: inherit;
     min-width: 60%;
+    resize: none;
 }
 
 @media (max-width: 448px) {
     .recipeViewer .editableItem {
         width: 150px;
     }
+}
+
+.recipeViewer-ingredientActions {
+    position: absolute;
+    top: 0;
+    right: 0;
+    color: $dark-grey;
 }
 
 .recipeViewer-editIngredientButton, .recipeViewer-deleteIngredientButton,
@@ -188,7 +209,7 @@ body {
 
 @media (max-width: 448px) {
     .recipeViewer-content {
-        padding: 32px 8px 0 8px;
+        padding: 32px 16px 0 16px;
     }   
 }
 
