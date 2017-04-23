@@ -1,0 +1,167 @@
+* {
+  box-sizing: border-box; }
+
+ul {
+  padding-left: 0; }
+
+li {
+  list-style: none; }
+
+/***********************
+    Colors
+***********************/
+/**********************************
+            Buttons
+**********************************/
+.btn {
+  background-color: #f2a694;
+  color: #FFF;
+  box-shadow: 2px 2px 2px grey;
+  border-radius: 10px;
+  border: none;
+  padding: 8px;
+  font-size: 16px;
+  font-weight: 600; }
+
+.btn:hover, .btn:active, .btn:focus {
+  background-color: #f2a694;
+  color: #FFF; }
+
+/*************************************
+            General
+*************************************/
+body {
+  background-color: #ebebeb;
+  font-size: 16px;
+  line-height: 1.6; }
+
+.container-fluid {
+  max-width: 1200px;
+  margin: 0 auto;
+  background-color: #ebebeb; }
+
+.container-inner {
+  width: 60%;
+  margin: 0 auto;
+  padding: 32px; }
+
+@media (max-width: 768px) {
+  .container-inner {
+    width: 95%;
+    padding: 32px 0;
+    max-width: 400px; } }
+/***************
+  RecipeList
+***************/
+.recipeList {
+  max-width: 600px;
+  margin: 0 auto;
+  margin-bottom: 32px;
+  padding: 64px;
+  box-shadow: 2px 2px 2px grey;
+  background-image: url(http://www.seriouseats.com/images/2015/09/20150914-pressure-cooker-recipes-roundup-09.jpg);
+  background-size: 100% 100%;
+  background-position: center center;
+  background-repeat: no-repeat; }
+
+.recipeList-shelf {
+  height: 100px;
+  overflow: auto; }
+
+.recipeList-itemList {
+  background-color: #FFF;
+  text-align: center;
+  margin-bottom: 0; }
+
+.recipeList-recipeItem {
+  cursor: pointer; }
+
+.recipeList-createRecipeButton {
+  display: block;
+  width: 100%;
+  border-radius: unset; }
+
+/***********************
+    ReciperViewer
+***********************/
+.recipeViewer {
+  max-width: 600px;
+  margin: 0 auto;
+  margin-bottom: 32px;
+  background-color: #FFF;
+  box-shadow: 2px 2px 2px grey;
+  position: relative; }
+
+.recipeViewer-header:before {
+  content: "";
+  background-image: url(http://goodtoknow.media.ipcdigital.co.uk/111/00000723d/4199_orh412w625/tomato-pasta-bake.jpg);
+  padding-top: 66.4%;
+  background-repeat: no-repeat;
+  display: block; }
+
+.recipeViewer-header:after {
+  content: "";
+  clear: both;
+  display: block; }
+
+.recipeViewer-closeButton {
+  background-color: transparent;
+  transition: color 0.3s ease;
+  position: absolute;
+  top: 16px;
+  right: 16px; }
+
+.recipeViewer-titleContainer {
+  margin-bottom: 16px; }
+
+.recipeViewer-titleContainer .editableItem {
+  font-weight: 900; }
+
+.recipeViewer-ingredientItem {
+  margin-bottom: 8px; }
+
+.recipeViewer-ingredientItem[data-index]:before {
+  content: attr(data-index);
+  margin-right: 8px;
+  padding: 4px 8px;
+  border-radius: 50%;
+  background-color: #a694f2;
+  color: #FFF; }
+
+.recipeViewer .editableItem {
+  border: none;
+  background-color: inherit;
+  min-width: 60%; }
+
+@media (max-width: 448px) {
+  .recipeViewer .editableItem {
+    width: 150px; } }
+.recipeViewer-editIngredientButton, .recipeViewer-deleteIngredientButton,
+.recipeViewer-editTitleButton, .recipeViewer-closeButton {
+  background-color: transparent;
+  border: none; }
+
+.recipeViewer-content {
+  padding: 32px 64px 0 64px;
+  margin-bottom: 32px; }
+
+@media (max-width: 448px) {
+  .recipeViewer-content {
+    padding: 32px 8px 0 8px; } }
+.recipeViewer-addIngredientButton, .recipeViewer-deleteRecipeButton {
+  width: 50%;
+  border-radius: unset;
+  padding: 16px 16px; }
+
+.recipeViewer-addIngredientButton {
+  background-color: #f5b9ab; }
+
+.recipeViewer-addIngredientButton:hover, .recipeViewer-addIngredientButton:active,
+.recipeViewer-addIngredientButton:focus {
+  background-color: #f5b9ab; }
+
+/***********************
+    RecipeCreatorModal
+***********************/
+
+/*# sourceMappingURL=styles.css.map */

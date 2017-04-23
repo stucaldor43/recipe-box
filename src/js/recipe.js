@@ -332,7 +332,7 @@ window.addEventListener("load", function() {
             }
             
             return (
-              <li className="recipeViewer-ingredientItem" key={ ingredient.id }>
+              <li className="recipeViewer-ingredientItem" data-index={ i + 1 } key={ ingredient.id }>
                 <EditableItem { ...domProps }/>{ buttons }
               </li>
             );
@@ -360,7 +360,7 @@ window.addEventListener("load", function() {
               <div className="recipeViewer-footer">
                 <button onClick={ this.props.addIngredient.bind(this, { editedRecipe: this.props.recipe }) } 
                         className="recipeViewer-addIngredientButton btn btn-default">
-                  <i className="glyphicon glyphicon-plus"></i>Add ingredient</button>
+                  Add Ingredient</button>
                 { deleteRecipeButton }
               </div>
             </div>
