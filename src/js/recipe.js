@@ -3,7 +3,7 @@ const {PropTypes: ReactPropTypes} = React;
 window.addEventListener("load", function() {
     const App = React.createClass({
         getInitialState() {
-          return { modalActive: false, recipes: [], recipeBeingViewed: null };
+          return { modalActive: true, recipes: [], recipeBeingViewed: null };
         },
         componentDidMount() {
           if (this.getSavedRecipes()) {
@@ -162,7 +162,7 @@ window.addEventListener("load", function() {
             return { 
               ingredients: state.ingredients.concat([{ 
                 value: "", 
-                id: state.ingredients[state.ingredients.length - 1].id + 1 
+                id: (state.ingredients.length <= 0) ? 0 : state.ingredients[state.ingredients.length - 1].id + 1 
               }])
             };
           });
@@ -214,7 +214,7 @@ window.addEventListener("load", function() {
           saveButton = <button { ...domProps } 
                               onClick={ this.saveRecipe } 
                               className="btn btn-success btn-default recipeCreatorModal-saveRecipeButton">
-                              Save Recipe</button>;
+                              { (this.recipeInput && this.recipeInput.value.trim().length > 0) ? 'Save Recipe' : 'A title is required' }</button>;
           
           return (
             <div className={ `${this.props.classes} modal recipeCreatorModal` }>
