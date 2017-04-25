@@ -78,18 +78,23 @@ window.addEventListener("load", function() {
             };
           });
         },
-        addIngredient({ editedRecipe }) {
+        addIngredient({ editedRecipe }, evt) {
+          if (evt.charCode !== 13 && evt.key !== "Enter") { 
+            return; 
+          }
+          const value = evt.target.value;
           this.setState((state) => {
             return {
               recipes: state.recipes.map((recipe) => {
                 if (recipe === editedRecipe) {
                   const id = (recipe.ingredients.length <= 0) ? 0 : editedRecipe.ingredients[editedRecipe.ingredients.length - 1].id + 1;
-                  recipe.ingredients = editedRecipe.ingredients.concat({ name: "", id });
+                  recipe.ingredients = editedRecipe.ingredients.concat({ name: value, id });
                 } 
                 return recipe;
               })
             };
           });
+          evt.target.value = "";
         },
         deleteRecipe(recipeToDelete) {
           this.setState((state) => {
@@ -157,15 +162,19 @@ window.addEventListener("load", function() {
             };
           });
         },
-        addIngredientSlot() {
-          this.setState((state) => { 
-            return { 
-              ingredients: state.ingredients.concat([{ 
-                value: "", 
-                id: (state.ingredients.length <= 0) ? 0 : state.ingredients[state.ingredients.length - 1].id + 1 
-              }])
-            };
-          });
+        addIngredientSlot(evt) {
+          const value = evt.target.value;
+          if (evt.charCode === 13 || evt.key === "Enter") {
+            this.setState((state) => { 
+              return { 
+                ingredients: state.ingredients.concat([{ 
+                  value, 
+                  id: (state.ingredients.length <= 0) ? 0 : state.ingredients[state.ingredients.length - 1].id + 1 
+                }])
+              };
+            });
+            evt.target.value = "";
+          }
         },
         removeIngredient(indexOfIngredientToDelete) {
           this.setState((state) => { 
@@ -189,9 +198,13 @@ window.addEventListener("load", function() {
         },
         renderIngredients() {
           const ingredients = this.state.ingredients.map((item, i) => {
+            let domProps = {};
+            (item.value.trim().length > 0) ? domProps.value = item.value : null;
+            
             return (
               <li className="recipeCreatorModal-ingredientItem" key={ item.id }>
-                <EditableItem isEditable={ true } 
+                <EditableItem isEditable={ true }
+                              { ...domProps }
                               placeholder="ingredient" 
                               refCallback={(c) => {
                                if (this.ingredientNodes.indexOf(c) < 0) {
@@ -233,7 +246,7 @@ window.addEventListener("load", function() {
                 <ul className="recipeCreatorModal-ingredientList">
                   { this.renderIngredients() }
                 </ul>
-                <button onClick={ this.addIngredientSlot } className="recipeCreatorModal-addIngredientButton btn btn-default"><i className="glyphicon glyphicon-plus"></i>Add ingredient</button>
+                <input onKeyPress={ this.addIngredientSlot } className="" placeholder="Add ingredient"/>
               </div>
               <div className="modal-footer recipeCreatorModal-footer">
                 { saveButton }
@@ -356,11 +369,11 @@ window.addEventListener("load", function() {
                 <ul className="recipeViewer-ingredientList">
                   { this.renderIngredientInputs() }
                 </ul>
+                <input onKeyPress={ this.props.addIngredient.bind(this, { editedRecipe: this.props.recipe }) } 
+                       className=""
+                       placeholder="ingredient name"/>
               </div>
               <div className="recipeViewer-footer">
-                <button onClick={ this.props.addIngredient.bind(this, { editedRecipe: this.props.recipe }) } 
-                        className="recipeViewer-addIngredientButton btn btn-default">
-                  Add Ingredient</button>
                 { deleteRecipeButton }
               </div>
             </div>
