@@ -156,11 +156,6 @@ window.addEventListener("load", function() {
         },
         componentDidMount() {
           this.ingredientNodes = [];
-          this.setState((state) => { 
-            return {
-              ingredients: state.ingredients.concat([{ value: "", id: 0 }]) 
-            };
-          });
         },
         addIngredientSlot(evt) {
           const value = evt.target.value;
@@ -175,6 +170,19 @@ window.addEventListener("load", function() {
             });
             evt.target.value = "";
           }
+        },
+        changeIngredient(alteredIngredientId, evt) {
+          const value = evt.target.value;
+          this.setState((state) => {
+            return {
+              ingredients: state.ingredients.map((item, i) => {
+                if (item.id === alteredIngredientId) {
+                  item.value = value;
+                }
+                return item;
+              })
+            };
+          });
         },
         removeIngredient(indexOfIngredientToDelete) {
           this.setState((state) => { 
@@ -205,7 +213,8 @@ window.addEventListener("load", function() {
               <li className="recipeCreatorModal-ingredientItem" key={ item.id }>
                 <EditableItem isEditable={ true }
                               { ...domProps }
-                              placeholder="ingredient" 
+                              placeholder="ingredient"
+                              onChangeHandler={ this.changeIngredient.bind(item.id) }
                               refCallback={(c) => {
                                if (this.ingredientNodes.indexOf(c) < 0) {
                                  this.ingredientNodes.push(c);
