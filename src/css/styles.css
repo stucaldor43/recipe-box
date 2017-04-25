@@ -43,7 +43,8 @@ body {
 .container-inner {
   width: 60%;
   margin: 0 auto;
-  padding: 32px; }
+  padding: 32px;
+  position: relative; }
 
 @media (max-width: 768px) {
   .container-inner {
@@ -66,10 +67,10 @@ body {
 
 .recipeList-shelf {
   height: 100px;
-  overflow: auto; }
+  overflow: auto;
+  background-color: #FFF; }
 
 .recipeList-itemList {
-  background-color: #FFF;
   text-align: center;
   margin-bottom: 0; }
 
@@ -181,5 +182,51 @@ body {
 /***********************
     RecipeCreatorModal
 ***********************/
+.recipeCreatorModal {
+  background-color: #FFF;
+  position: absolute;
+  left: -8px;
+  right: -8px;
+  top: 100px;
+  bottom: auto;
+  box-shadow: 2px 2px 8px grey; }
+
+.recipeCreatorModal-header {
+  border: none;
+  padding-right: 16px; }
+
+.recipeCreatorModal-closeButton {
+  top: -8px; }
+
+.recipeCreatorModal-content {
+  border: none;
+  border-radius: 0px;
+  box-shadow: none;
+  padding: 0 32px 16px 32px; }
+
+.recipeCreatorModal .editableItem, .recipeCreatorModal .editableItem:focus,
+.recipeCreatorModal .editableItem:active {
+  border: none;
+  resize: none;
+  outline: none; }
+
+.recipeCreatorModal-deleteIngredientButton {
+  vertical-align: top;
+  border: none;
+  background-color: transparent;
+  color: #b9b9b9; }
+
+.recipeCreatorModal-footer {
+  border: none;
+  padding: 0; }
+
+.recipeCreatorModal-saveRecipeButton, .recipeCreatorModal-saveRecipeButton:focus,
+.recipeCreatorModal-saveRecipeButton:active,
+.recipeCreatorModal-saveRecipeButton:hover {
+  display: block;
+  width: 100%;
+  border-radius: 0px;
+  background-color: #a694f2;
+  padding: 16px; }
 
 /*# sourceMappingURL=styles.css.map */
