@@ -148,7 +148,7 @@ body {
 
 @media (max-width: 448px) {
   .recipeViewer .editableItem {
-    width: 150px; } }
+    width: 135px; } }
 .recipeViewer-ingredientActions {
   position: absolute;
   top: 0;
@@ -193,28 +193,66 @@ body {
 
 .recipeCreatorModal-header {
   border: none;
-  padding-right: 16px; }
+  padding: 66.4% 0px 0px 0px;
+  background-image: url("https://s-media-cache-ak0.pinimg.com/originals/91/e2/3e/91e23e865279a0d8a6ea23a87dea640c--homemade-mozzarella-sticks-mozzarella-cheese-sticks.jpg");
+  background-repeat: no-repeat;
+  background-size: 100%;
+  background-position: center center;
+  position: relative; }
 
 .recipeCreatorModal-closeButton {
-  top: -8px; }
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  float: none; }
 
 .recipeCreatorModal-content {
   border: none;
   border-radius: 0px;
   box-shadow: none;
-  padding: 0 32px 16px 32px; }
+  padding: 32px 32px 16px 32px; }
+
+.recipeCreatorModal-titleContainer {
+  margin-bottom: 32px; }
+
+.recipeCreatorModal-ingredientItem {
+  margin-bottom: 8px; }
+
+.recipeCreatorModal-ingredientItem:before {
+  content: attr(data-index);
+  padding: 8px 12px;
+  background-color: #a591f5;
+  border-radius: 50%;
+  vertical-align: top;
+  margin-right: 8px;
+  color: #FFF; }
 
 .recipeCreatorModal .editableItem, .recipeCreatorModal .editableItem:focus,
 .recipeCreatorModal .editableItem:active {
   border: none;
   resize: none;
-  outline: none; }
+  outline: none;
+  padding-right: 32px; }
 
+@media (max-width: 351px) {
+  .recipeCreatorModal .editableItem, .recipeCreatorModal .editableItem:focus,
+  .recipeCreatorModal .editableItem:active {
+    width: 150px; } }
 .recipeCreatorModal-deleteIngredientButton {
   vertical-align: top;
   border: none;
   background-color: transparent;
-  color: #b9b9b9; }
+  color: #b9b9b9;
+  margin-left: 20%; }
+
+@media (max-width: 450px) {
+  .recipeCreatorModal-deleteIngredientButton {
+    margin-left: -32px; } }
+.recipeCreatorModal-addIngredientTextbox, .recipeCreatorModal-addIngredientTextbox:focus,
+.recipeCreatorModal-addIngredientTextbox:active {
+  border: none;
+  border-bottom: thin solid #e4e4d5;
+  outline: none; }
 
 .recipeCreatorModal-footer {
   border: none;
