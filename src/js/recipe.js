@@ -3,7 +3,7 @@ const {PropTypes: ReactPropTypes} = React;
 window.addEventListener("load", function() {
     const App = React.createClass({
         getInitialState() {
-          return { modalActive: true, recipes: [], recipeBeingViewed: null };
+          return { modalActive: false, recipes: [], recipeBeingViewed: null };
         },
         componentDidMount() {
           if (this.getSavedRecipes()) {
@@ -210,11 +210,11 @@ window.addEventListener("load", function() {
             (item.value.trim().length > 0) ? domProps.value = item.value : null;
             
             return (
-              <li className="recipeCreatorModal-ingredientItem" key={ item.id }>
+              <li className="recipeCreatorModal-ingredientItem" key={ item.id } data-index={ i + 1 }>
                 <EditableItem isEditable={ true }
                               { ...domProps }
                               placeholder="ingredient"
-                              onChangeHandler={ this.changeIngredient.bind(item.id) }
+                              onChangeHandler={ this.changeIngredient.bind(this, item.id) }
                               refCallback={(c) => {
                                if (this.ingredientNodes.indexOf(c) < 0) {
                                  this.ingredientNodes.push(c);
@@ -255,7 +255,9 @@ window.addEventListener("load", function() {
                 <ul className="recipeCreatorModal-ingredientList">
                   { this.renderIngredients() }
                 </ul>
-                <input onKeyPress={ this.addIngredientSlot } className="" placeholder="Add ingredient"/>
+                <input onKeyPress={ this.addIngredientSlot } 
+                       className="recipeCreatorModal-addIngredientTextbox" 
+                       placeholder="add ingredient"/>
               </div>
               <div className="modal-footer recipeCreatorModal-footer">
                 { saveButton }
