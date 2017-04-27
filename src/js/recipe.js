@@ -493,10 +493,18 @@ window.addEventListener("load", function() {
         componentDidMount() {
           this.autoGrow();
           window.addEventListener("resize", this.autoGrow);
+          setTimeout(this.props.transitionCallback, 0);
         },
         componentDidUpdate(prevProps, prevState) {
           if (this.props.value !== prevProps.value) {
             this.autoGrow();
+          }
+        },
+        removeFocus(evt) {
+          const element = ReactDOM.findDOMNode(this);
+          if (evt.charCode === 13 || evt.key === "Enter") {
+            element.blur();
+            evt.preventDefault();
           }
         },
         autoGrow() {
@@ -518,6 +526,7 @@ window.addEventListener("load", function() {
           return (
             <textarea className={ `editableItem ${(domProps.disabled) ? "editableItem-isNotBeingEdited" :"editableItem-isBeingEdited"}` }
                            { ...domProps }
+                           onKeyPress={ this.removeFocus }
                            onChange={ this.props.onChangeHandler }
                            onBlur={ this.props.onBlurHandler }
                            ref={ this.props.refCallback }></textarea>
