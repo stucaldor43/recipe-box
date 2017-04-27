@@ -1,9 +1,77 @@
 const {PropTypes: ReactPropTypes} = React;
+const defaultRecipes = [
+  {
+    title: { name: "Pancake", id: 0 },
+    ingredients: [ { name: "1 box pancake mix", id: 1 } ],
+    id: 0
+  },
+  {
+    title: { name: "Cake", id: 0 },
+    ingredients: [
+      { name: "1 box cake mix", id: 1 },
+      { name: "1 cup flour", id: 2 }
+    ],
+    id: 1
+  },
+  {
+    title: { name: "Egg Mcmuffin", id: 0 },
+    ingredients: [
+      { name: "2 eggs", id: 1 },
+      { name: "1 biscuit", id: 2 },
+      { name: "1 slice cheese", id: 3 },
+      { name: "1 sausage", id: 4 }
+    ],
+    id: 2
+  },
+  {
+    title: {
+      name: "Chef John's Buttermilk Fried Chicken",
+      id: 0
+    },
+    ingredients: [
+      { name: "1 tsp black pepper", id: 1 },
+      { name: "1 tsp salt", id: 2 },
+      { name: "1 pound chicken, cut into 8 pieces", id: 3 },
+      { name: "2 cups buttermilk", id: 4 },
+      { name: "1/4 tsp dried rosemary", id: 5 },
+      { name: "1/2 tsp white pepper", id: 6 }
+    ],
+    id: 3
+  },
+  {
+    title: { name: "Simple Garlic Shrimp", id: 0 },
+    ingredients: [
+      { name: "1 1/2 tablespoons olive oil", id: 1 },
+      {
+        name: "1 pound shrimp, peeled and deveined",
+        id: 2
+      },
+      { name: "salt to taste", id: 3 },
+      { name: "6 cloves garlic, finely minced", id: 4 },
+      { name: "1/4 teaspoon red pepper flakes", id: 5 },
+      { name: "3 tablespoons lemon juice", id: 6 },
+      { name: "water, as needed", id: 7 }
+    ],
+    id: 4
+  },
+  {
+    title: { name: "World's Best Lasagna", id: 0 },
+    ingredients: [
+      { name: "1 pound sweet Italian sausage", id: 1 },
+      { name: "3/4 pound lean ground beef", id: 2 },
+      { name: "1/2 cup minced onion", id: 3 },
+      { name: "2 cloves garlic, crushed", id: 4 },
+      { name: "1 (28 ounce) can crushed tomatoes", id: 5 },
+      { name: "2 (6 ounce) cans tomato paste", id: 6 }
+    ],
+    id: 5
+  }
+];
 
 window.addEventListener("load", function() {
     const App = React.createClass({
         getInitialState() {
-          return { modalActive: false, recipes: [], recipeBeingViewed: null };
+          return { modalActive: false, recipes: defaultRecipes, recipeBeingViewed: null };
         },
         componentDidMount() {
           if (this.getSavedRecipes()) {
