@@ -220,7 +220,7 @@ window.addEventListener("load", function() {
           closeModal: ReactPropTypes.func.isRequired
         },
         getInitialState() {
-          return { ingredients: [], recipeTitle: "" };
+          return { ingredients: [], recipeTitle: "", hiddenItemIds: [] };
         },
         componentDidMount() {
           this.ingredientNodes = [];
@@ -228,12 +228,14 @@ window.addEventListener("load", function() {
         addIngredientSlot(evt) {
           const value = evt.target.value;
           if (evt.charCode === 13 || evt.key === "Enter") {
-            this.setState((state) => { 
+            this.setState((state) => {
+              const id = (state.ingredients.length <= 0) ? 0 : state.ingredients[state.ingredients.length - 1].id + 1;
               return { 
                 ingredients: state.ingredients.concat([{ 
                   value, 
-                  id: (state.ingredients.length <= 0) ? 0 : state.ingredients[state.ingredients.length - 1].id + 1 
-                }])
+                  id  
+                }]),
+                hiddenItemIds: state.hiddenItemIds.concat(id)
               };
             });
             evt.target.value = "";
@@ -272,13 +274,26 @@ window.addEventListener("load", function() {
         changeRecipeTitle(evt) {
           this.setState({ recipeTitle: evt.target.value });
         },
+        revealItem(removedItemId) {
+          this.setState((state) => {
+            return {
+              hiddenItemIds: state.hiddenItemIds.filter((id) => id !== removedItemId) 
+            };
+          });
+        },
         renderIngredients() {
           const ingredients = this.state.ingredients.map((item, i) => {
-            let domProps = {};
+            let domProps = {
+              transitionCallback: this.revealItem.bind(this, item.id)
+            };
             (item.value.trim().length > 0) ? domProps.value = item.value : null;
             
+            const isHidden = (this.state.hiddenItemIds.includes(item.id) ? true : false);
+            
             return (
-              <li className="recipeCreatorModal-ingredientItem" key={ item.id } data-index={ i + 1 }>
+              <li className={ `recipeCreatorModal-ingredientItem ${isHidden ? "recipeCreatorModal-ingredientItem-isHidden" : ""}` } 
+                  key={ item.id } 
+                  data-index={ i + 1 }>
                 <EditableItem isEditable={ true }
                               { ...domProps }
                               placeholder="ingredient"
@@ -401,7 +416,7 @@ window.addEventListener("load", function() {
             let buttons;
             let domProps = {
               value: ingredient.name,
-              refCallback: (c) => this[ingredient.id] = c
+              refCallback: (c) => this[ingredient.id] = c,
             };
             if (ingredient.id === this.state.editableItemId) {
               domProps.isEditable = true;
@@ -424,7 +439,9 @@ window.addEventListener("load", function() {
             }
             
             return (
-              <li className="recipeViewer-ingredientItem" data-index={ i + 1 } key={ ingredient.id }>
+              <li className={ `recipeViewer-ingredientItem`} 
+                  data-index={ i + 1 } 
+                  key={ ingredient.id }>
                 <EditableItem { ...domProps }/>{ buttons }
               </li>
             );
@@ -449,8 +466,8 @@ window.addEventListener("load", function() {
                   { this.renderIngredientInputs() }
                 </ul>
                 <input onKeyPress={ this.props.addIngredient.bind(this, { editedRecipe: this.props.recipe }) } 
-                       className=""
-                       placeholder="ingredient name"/>
+                       className="recipeViewer-addIngredientTextbox"
+                       placeholder="add ingredient"/>
               </div>
               <div className="recipeViewer-footer">
                 { deleteRecipeButton }
@@ -540,7 +557,8 @@ window.addEventListener("load", function() {
       placeholder: ReactPropTypes.string,
       onChangeHandler: ReactPropTypes.func,
       onBlurHandler: ReactPropTypes.func,
-      refCallback: ReactPropTypes.func
+      refCallback: ReactPropTypes.func,
+      transitionCallback: ReactPropTypes.func
     };
     
     EditableItem.defaultProps = {

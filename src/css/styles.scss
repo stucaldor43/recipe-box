@@ -18,11 +18,11 @@ li {
 $primary-bg: #ebebeb;
 $white: #FFF;
 $salmon: #f2a694;
-$peach: #f5b9ab;
 $grey: grey;
 $purple: #a694f2;
 $dark-grey: #b9b9b9;
-
+$light-grey: #e4e4d5;
+$light-blue: #94b1f2;
 /**********************************
             Buttons
 **********************************/
@@ -165,12 +165,18 @@ body {
     margin-bottom: 8px;
     position: relative;
     padding-right: 56px;
+    opacity: 1;
+    transition: opacity 1s ease-in;
+}
+
+.recipeViewer-ingredientItem-isHidden {
+    opacity: 0;
 }
 
 .recipeViewer-ingredientItem[data-index]:before {
     content: attr(data-index);
     margin-right: 8px;
-    padding: 4px 8px;
+    padding: 8px 12px;
     border-radius: 50%;
     background-color: $purple;
     color: $white;
@@ -180,13 +186,13 @@ body {
 .recipeViewer .editableItem {
     border: none;
     background-color: inherit;
-    min-width: 60%;
+    max-width: 60%;
     resize: none;
 }
 
 @media (max-width: 448px) {
     .recipeViewer .editableItem {
-        width: 135px;
+        width: 130px;
     }
 }
 
@@ -214,19 +220,17 @@ body {
     }   
 }
 
-.recipeViewer-addIngredientButton, .recipeViewer-deleteRecipeButton {
-    width: 50%;
+.recipeViewer-addIngredientTextbox, .recipeViewer-addIngredientTextbox:focus,
+.recipeViewer-addIngredientTextbox:active {
+    border: none;
+    border-bottom: thin solid $light-grey;
+    outline: none;
+}
+
+.recipeViewer-deleteRecipeButton {
+    width: 100%;
     border-radius: unset;
     padding: 16px 16px;
-}
-
-.recipeViewer-addIngredientButton {
-    background-color: $peach;
-}
-
-.recipeViewer-addIngredientButton:hover, .recipeViewer-addIngredientButton:active,
-.recipeViewer-addIngredientButton:focus {
-    background-color: $peach;
 }
 
 /***********************
@@ -241,6 +245,8 @@ body {
     top: 100px;
     bottom: auto;
     box-shadow: 2px 2px 8px $grey;
+    max-width: 400px;
+    margin: 0 auto;
 }
 
 .recipeCreatorModal-header {
@@ -253,11 +259,15 @@ body {
     position: relative;
 }
 
-.recipeCreatorModal-closeButton {
+.recipeCreatorModal-closeButton, .recipeCreatorModal-closeButton:hover,
+.recipeCreatorModal-closeButton:active, .recipeCreatorModal-closeButton:focus {
     position: absolute;
     top: 16px;
     right: 16px;
     float: none;
+    color: $grey;
+    opacity: .6;
+    text-shadow: none;
 }
 
 .recipeCreatorModal-content {
@@ -272,17 +282,23 @@ body {
 }
 
 .recipeCreatorModal-ingredientItem {
-    margin-bottom: 8px;    
+    margin-bottom: 8px;
+    opacity: 1;
+    transition: opacity 1s ease-in;
+}
+
+.recipeCreatorModal-ingredientItem-isHidden {
+    opacity: 0;
 }
 
 .recipeCreatorModal-ingredientItem:before {
     content: attr(data-index);
     padding: 8px 12px;
-    background-color: #a591f5;
+    background-color: $light-blue;
     border-radius: 50%;
     vertical-align: top;
     margin-right: 8px;
-    color: #FFF;
+    color: $white;
 }
 
 .recipeCreatorModal .editableItem, .recipeCreatorModal .editableItem:focus,
@@ -305,7 +321,6 @@ body {
      border: none;
      background-color: transparent;
      color: $dark-grey;
-     margin-left: 20%;
 }
 
 @media (max-width: 450px) {
@@ -317,7 +332,7 @@ body {
 .recipeCreatorModal-addIngredientTextbox, .recipeCreatorModal-addIngredientTextbox:focus,
 .recipeCreatorModal-addIngredientTextbox:active {
     border: none;
-    border-bottom: thin solid #e4e4d5;
+    border-bottom: thin solid $light-grey;
     outline: none;
 }
 
