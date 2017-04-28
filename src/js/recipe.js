@@ -77,9 +77,13 @@ window.addEventListener("load", function() {
           if (this.getSavedRecipes()) {
             this.setState((state) => ({ recipes: this.getSavedRecipes() }));
           }
+          this.ensureImagesAreCached();
         },
         componentDidUpdate() {
           (window.localStorage) ? window.localStorage.setItem("_user_recipes", JSON.stringify(this.state.recipes)) : null;
+        },
+        ensureImagesAreCached() {
+          new Image().src = "https://s-media-cache-ak0.pinimg.com/originals/91/e2/3e/91e23e865279a0d8a6ea23a87dea640c--homemade-mozzarella-sticks-mozzarella-cheese-sticks.jpg";  
         },
         getSavedRecipes() {
           let savedRecipes = undefined;
@@ -107,7 +111,7 @@ window.addEventListener("load", function() {
               recipes: state.recipes.map((recipe) => {
                 if (recipe === editedRecipe) {
                   recipe.title.name = newTitle;
-                  return recipe;
+                  return Object.assign({}, recipe);
                 }
                 return recipe;
               })
@@ -120,13 +124,14 @@ window.addEventListener("load", function() {
             return {
               recipes: state.recipes.map((recipe) => {
                   if (recipe === editedRecipe) {
-                    recipe.ingredients = editedRecipe.ingredients.map((ingredient) => {
+                    recipe.ingredients = recipe.ingredients.map((ingredient) => {
                       if (ingredient.id === editedIngredient.id) {
                         ingredient.name = newIngredientValue;
+                        return Object.assign({}, ingredient);
                       } 
                       return ingredient;
                     });
-                    return recipe;
+                    return Object.assign({}, recipe);
                   }
                   return recipe;
               })
@@ -138,8 +143,8 @@ window.addEventListener("load", function() {
             return {
               recipes: state.recipes.map((recipe) => {
                 if (recipe === editedRecipe) {
-                  recipe.ingredients = editedRecipe.ingredients.filter((ingredient) => ingredient.id !== ingredientToDiscard.id);
-                  return recipe;
+                  recipe.ingredients = recipe.ingredients.filter((ingredient) => ingredient.id !== ingredientToDiscard.id);
+                  return Object.assign({}, recipe);
                 }
                 return recipe;
               })
@@ -155,9 +160,11 @@ window.addEventListener("load", function() {
             return {
               recipes: state.recipes.map((recipe) => {
                 if (recipe === editedRecipe) {
-                  const id = (recipe.ingredients.length <= 0) ? 0 : editedRecipe.ingredients[editedRecipe.ingredients.length - 1].id + 1;
-                  recipe.ingredients = editedRecipe.ingredients.concat({ name: value, id });
-                } 
+                  const id = (recipe.ingredients.length <= 0) ? 0 : recipe.ingredients[recipe.ingredients.length - 1].id + 1;
+                  const updatedRecipe = Object.assign({}, recipe);
+                  updatedRecipe.ingredients = updatedRecipe.ingredients.concat({ name: value, id });
+                  return updatedRecipe;
+                }
                 return recipe;
               })
             };
@@ -167,7 +174,7 @@ window.addEventListener("load", function() {
         deleteRecipe(recipeToDelete) {
           this.setState((state) => {
             return {
-              recipes: state.recipes.filter((recipe) => recipe !== recipeToDelete)
+              recipes: state.recipes.filter((recipe) => recipe.id !== recipeToDelete.id)
             };
           });
         },
@@ -178,7 +185,7 @@ window.addEventListener("load", function() {
           this.setState({ modalActive: false });
         },
         openRecipeViewer(recipe) {
-          this.setState({ recipeBeingViewed: recipe });
+          this.setState({ recipeBeingViewed: recipe.id });
         },
         closeRecipeViewer() {
           this.setState({ recipeBeingViewed: null });
@@ -188,7 +195,7 @@ window.addEventListener("load", function() {
           const { recipeBeingViewed } = this.state;
           let recipeViewer;
           if (recipeBeingViewed) {
-              recipeViewer = <RecipeViewer recipe={ recipeBeingViewed }
+              recipeViewer = <RecipeViewer recipe={ this.state.recipes.find((recipe) => recipe.id === this.state.recipeBeingViewed) }
                             alterTitle={ this.alterTitle }
                             alterIngredient={ this.alterIngredient }
                             addIngredient={ this.addIngredient }
@@ -362,8 +369,19 @@ window.addEventListener("load", function() {
         },
         getInitialState() {
           return {
-            editableItemId: null
+            editableItemId: null,
+            hiddenItemIds: []
           };
+        },
+        componentWillReceiveProps(nextProps) {
+          if (nextProps.recipe.ingredients.length > this.props.recipe.ingredients.length) {
+            this.setState((state) => {
+              const ingredients = nextProps.recipe.ingredients;
+              return {
+                hiddenItemIds: state.hiddenItemIds.concat(ingredients[ingredients.length - 1].id)
+              };
+            });
+          }
         },
         componentDidUpdate(prevProps, prevState) {
           const editButtonWasRecentlyClicked = prevState.editableItemId !== this.state.editableItemId && 
@@ -384,6 +402,13 @@ window.addEventListener("load", function() {
         },
         closeRecipeViewer() {
           this.props.closeRecipeViewer();
+        },
+        revealItem(removedItemId) {
+          this.setState((state) => {
+            return {
+              hiddenItemIds: state.hiddenItemIds.filter((id) => id !== removedItemId) 
+            };
+          });
         },
         renderTitleInput() {
           let recipeTitle, editButton;
@@ -417,6 +442,7 @@ window.addEventListener("load", function() {
             let domProps = {
               value: ingredient.name,
               refCallback: (c) => this[ingredient.id] = c,
+              transitionCallback: this.revealItem.bind(this, ingredient.id)
             };
             if (ingredient.id === this.state.editableItemId) {
               domProps.isEditable = true;
@@ -437,9 +463,9 @@ window.addEventListener("load", function() {
                           </button>
                         </span>;
             }
-            
+            const isHidden = (this.state.hiddenItemIds.includes(ingredient.id) ? true : false);
             return (
-              <li className={ `recipeViewer-ingredientItem`} 
+              <li className={ `recipeViewer-ingredientItem ${isHidden ? "recipeViewer-ingredientItem-isHidden" : ""}`} 
                   data-index={ i + 1 } 
                   key={ ingredient.id }>
                 <EditableItem { ...domProps }/>{ buttons }
@@ -465,7 +491,7 @@ window.addEventListener("load", function() {
                 <ul className="recipeViewer-ingredientList">
                   { this.renderIngredientInputs() }
                 </ul>
-                <input onKeyPress={ this.props.addIngredient.bind(this, { editedRecipe: this.props.recipe }) } 
+                <input onKeyPress={ this.props.addIngredient.bind(null, { editedRecipe: this.props.recipe }) } 
                        className="recipeViewer-addIngredientTextbox"
                        placeholder="add ingredient"/>
               </div>
