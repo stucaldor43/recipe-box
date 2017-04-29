@@ -3,7 +3,8 @@ const defaultRecipes = [
   {
     title: { name: "Pancake", id: 0 },
     ingredients: [ { name: "1 box pancake mix", id: 1 } ],
-    id: 0
+    id: 0,
+    background: "http://ghk.h-cdn.co/assets/16/38/980x490/landscape-1474822198-how-to-make-pancakes.jpg"
   },
   {
     title: { name: "Cake", id: 0 },
@@ -11,7 +12,8 @@ const defaultRecipes = [
       { name: "1 box cake mix", id: 1 },
       { name: "1 cup flour", id: 2 }
     ],
-    id: 1
+    id: 1,
+    background: "http://www.d2gk7xgygi98cy.cloudfront.net/6527-3-large.jpg"
   },
   {
     title: { name: "Egg Mcmuffin", id: 0 },
@@ -21,7 +23,8 @@ const defaultRecipes = [
       { name: "1 slice cheese", id: 3 },
       { name: "1 sausage", id: 4 }
     ],
-    id: 2
+    id: 2,
+    background: "https://www.mcdonalds.com/content/dam/usa/nutrition/items/iconic/desktop/t-mcdonalds-Egg-McMuffin.png"
   },
   {
     title: {
@@ -36,7 +39,8 @@ const defaultRecipes = [
       { name: "1/4 tsp dried rosemary", id: 5 },
       { name: "1/2 tsp white pepper", id: 6 }
     ],
-    id: 3
+    id: 3,
+    background: "https://www.perdue.com/recipeimages/1024x768_buttermilk_fried_chicken_tada.jpg"
   },
   {
     title: { name: "Simple Garlic Shrimp", id: 0 },
@@ -52,7 +56,8 @@ const defaultRecipes = [
       { name: "3 tablespoons lemon juice", id: 6 },
       { name: "water, as needed", id: 7 }
     ],
-    id: 4
+    id: 4,
+    background: "https://i0.wp.com/www.goodcook.com/wp-content/uploads/2017/04/2017-04-GC-APRIL-Simple-Garlic-Shrimp-Alfredo-with-Zoodles-5-1-of-1.jpg"
   },
   {
     title: { name: "World's Best Lasagna", id: 0 },
@@ -64,7 +69,8 @@ const defaultRecipes = [
       { name: "1 (28 ounce) can crushed tomatoes", id: 5 },
       { name: "2 (6 ounce) cans tomato paste", id: 6 }
     ],
-    id: 5
+    id: 5,
+    background: "https://bigoven-res.cloudinary.com/image/upload/worlds-best-lasagna-179.jpg"
   }
 ];
 
@@ -83,7 +89,9 @@ window.addEventListener("load", function() {
           (window.localStorage) ? window.localStorage.setItem("_user_recipes", JSON.stringify(this.state.recipes)) : null;
         },
         ensureImagesAreCached() {
-          new Image().src = "https://s-media-cache-ak0.pinimg.com/originals/91/e2/3e/91e23e865279a0d8a6ea23a87dea640c--homemade-mozzarella-sticks-mozzarella-cheese-sticks.jpg";  
+          defaultRecipes.forEach((recipe) => new Image().src = recipe.background);
+          new Image().src = "https://s-media-cache-ak0.pinimg.com/originals/91/e2/3e/91e23e865279a0d8a6ea23a87dea640c--homemade-mozzarella-sticks-mozzarella-cheese-sticks.jpg";
+          new Image().src = "https://files.taxfoundation.org/20170110161620/meal2.jpg"
         },
         getSavedRecipes() {
           let savedRecipes = undefined;
@@ -196,7 +204,7 @@ window.addEventListener("load", function() {
           let modalClassname = (this.state.modalActive) ? "show" : "hidden";
           const { recipeBeingViewed } = this.state;
           let recipeViewer;
-          if (recipeBeingViewed) {
+          if (typeof recipeBeingViewed === "number") {
               recipeViewer = <RecipeViewer recipe={ this.state.recipes.find((recipe) => recipe.id === this.state.recipeBeingViewed) }
                             alterTitle={ this.alterTitle }
                             alterIngredient={ this.alterIngredient }
@@ -375,6 +383,10 @@ window.addEventListener("load", function() {
             hiddenItemIds: []
           };
         },
+        componentDidMount() {
+          const defaultRecipeBackground = "https://files.taxfoundation.org/20170110161620/meal2.jpg";
+          document.querySelector(".recipeViewer-header").style.backgroundImage = `url(${this.props.recipe.background || defaultRecipeBackground})`;
+        },
         componentWillReceiveProps(nextProps) {
           if (nextProps.recipe.ingredients.length > this.props.recipe.ingredients.length) {
             this.setState((state) => {
@@ -383,6 +395,10 @@ window.addEventListener("load", function() {
                 hiddenItemIds: state.hiddenItemIds.concat(ingredients[ingredients.length - 1].id)
               };
             });
+          }
+          if (this.props.recipe.background !== nextProps.recipe.background) {
+            const defaultRecipeBackground = "https://files.taxfoundation.org/20170110161620/meal2.jpg";
+            document.querySelector(".recipeViewer-header").style.backgroundImage = `url(${nextProps.recipe.background || defaultRecipeBackground})`;
           }
         },
         componentDidUpdate(prevProps, prevState) {

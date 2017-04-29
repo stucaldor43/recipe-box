@@ -93,12 +93,13 @@ body {
   box-shadow: 2px 2px 2px grey;
   position: relative; }
 
-.recipeViewer-header:before {
-  content: "";
+.recipeViewer-header {
   background-image: url(http://goodtoknow.media.ipcdigital.co.uk/111/00000723d/4199_orh412w625/tomato-pasta-bake.jpg);
   padding-top: 66.4%;
   background-repeat: no-repeat;
-  display: block; }
+  display: block;
+  background-size: 100% 100%;
+  background-position: center center; }
 
 .recipeViewer-header:after {
   content: "";
