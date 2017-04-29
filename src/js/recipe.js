@@ -110,8 +110,9 @@ window.addEventListener("load", function() {
             return {
               recipes: state.recipes.map((recipe) => {
                 if (recipe === editedRecipe) {
-                  recipe.title.name = newTitle;
-                  return Object.assign({}, recipe);
+                  const alteredRecipe = Object.assign({}, recipe);
+                  alteredRecipe.title = Object.assign({}, alteredRecipe.title, { name: newTitle });
+                  return alteredRecipe;
                 }
                 return recipe;
               })
@@ -124,14 +125,14 @@ window.addEventListener("load", function() {
             return {
               recipes: state.recipes.map((recipe) => {
                   if (recipe === editedRecipe) {
-                    recipe.ingredients = recipe.ingredients.map((ingredient) => {
-                      if (ingredient.id === editedIngredient.id) {
-                        ingredient.name = newIngredientValue;
-                        return Object.assign({}, ingredient);
-                      } 
-                      return ingredient;
+                    const alteredRecipe = Object.assign({}, recipe);
+                    alteredRecipe.ingredients = alteredRecipe.ingredients.map((ingredient) => {
+                      if (ingredient.id !== editedIngredient.id) {
+                        return ingredient;  
+                      }
+                      return Object.assign({}, ingredient, { name: newIngredientValue});
                     });
-                    return Object.assign({}, recipe);
+                    return alteredRecipe;
                   }
                   return recipe;
               })
@@ -143,8 +144,9 @@ window.addEventListener("load", function() {
             return {
               recipes: state.recipes.map((recipe) => {
                 if (recipe === editedRecipe) {
-                  recipe.ingredients = recipe.ingredients.filter((ingredient) => ingredient.id !== ingredientToDiscard.id);
-                  return Object.assign({}, recipe);
+                  const alteredRecipe = Object.assign({}, recipe);
+                  alteredRecipe.ingredients = alteredRecipe.ingredients.filter((ingredient) => ingredient.id !== ingredientToDiscard.id);
+                  return alteredRecipe;
                 }
                 return recipe;
               })
@@ -254,7 +256,7 @@ window.addEventListener("load", function() {
             return {
               ingredients: state.ingredients.map((item, i) => {
                 if (item.id === alteredIngredientId) {
-                  item.value = value;
+                  return (Object.assign({}, item, { value }));
                 }
                 return item;
               })
