@@ -5,7 +5,7 @@ var browserify = require("browserify");
 var source = require("vinyl-source-stream");
 
 gulp.task("browserify", function() {
-    return browserify("build/js/recipe.js")
+    return browserify("build/js/index.js")
       .bundle()
       .pipe(source("bundle.js"))
       .pipe(gulp.dest("public"));
