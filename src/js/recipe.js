@@ -13,7 +13,7 @@ const defaultRecipes = [
       { name: "1 cup flour", id: 2 }
     ],
     id: 1,
-    background: "http://www.d2gk7xgygi98cy.cloudfront.net/6527-3-large.jpg"
+    background: "https://i.ytimg.com/vi/dsJtgmAhFF4/maxresdefault.jpg"
   },
   {
     title: { name: "Egg Mcmuffin", id: 0 },
