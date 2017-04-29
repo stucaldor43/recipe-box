@@ -611,20 +611,6 @@ window.addEventListener("load", function() {
       refCallback: () => {}
     };
     
-    // const Button = React.createClass({
-    //   render() {
-    //     return (
-    //       <button className={ `btn ${this.props.category}` } 
-    //               onClick={ this.props.clickHandler }>{ this.props.children }</button>
-    //     );
-    //   }
-    // });
-    
-    // Button.propTypes = {
-    //   clickHandler: ReactPropTypes.func.isRequired,
-    //   category: ReactPropTypes.oneOf(["primary", "danger"]).isRequired 
-    // };
-    
     ReactDOM.render(<App />, document.querySelector(".container-fluid"));
 });
 
