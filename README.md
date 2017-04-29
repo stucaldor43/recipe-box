@@ -1,5 +1,5 @@
 # Recipe Box
-##What can it do?
+## What can it do?
 Recipe Box allows users to accomplish the following:
 
 1. Create recipes which have names and ingredients.
