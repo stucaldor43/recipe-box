@@ -1,4 +1,7 @@
-const {PropTypes: ReactPropTypes} = React;
+import React from 'react';
+import {PropTypes as ReactPropTypes} from 'react';
+import ReactDOM from 'react-dom';
+
 const defaultRecipes = [
   {
     title: { name: "Pancake", id: 0 },

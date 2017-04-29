@@ -1,6 +1,15 @@
 var gulp = require("gulp");
 var babel = require("gulp-babel");
 var sass = require("gulp-sass");
+var browserify = require("browserify");
+var source = require("vinyl-source-stream");
+
+gulp.task("browserify", function() {
+    return browserify("build/js/recipe.js")
+      .bundle()
+      .pipe(source("bundle.js"))
+      .pipe(gulp.dest("public"));
+});
 
 gulp.task("es6ify", function() {
     return gulp.src('src/**/*.js')
@@ -20,8 +29,8 @@ gulp.task("transferCss", function() {
 });
 
 gulp.task("replicateHtml", function() {
-    return gulp.src("index.html")
-    .pipe(gulp.dest("build"));
+    return gulp.src("src/index.html")
+    .pipe(gulp.dest("./"));
 });
 
 var watcher1 = gulp.watch("src/**/*.js", ["es6ify"]);
@@ -36,7 +45,11 @@ var watcher3 = gulp.watch("src/**/*.css", ["transferCss"]);
 watcher3.on("change", function(e) {
     console.log(e.path + " was changed");
 });
-var watcher4 = gulp.watch("index.html", ["replicateHtml"]);
+var watcher4 = gulp.watch("src/index.html", ["replicateHtml"]);
 watcher4.on("change", function(e) {
+    console.log(e.path + " was changed");
+});
+var watch5 = gulp.watch("build/js/**/*.js", ["browserify"]);
+watch5.on("change", function(e) {
     console.log(e.path + " was changed");
 });
